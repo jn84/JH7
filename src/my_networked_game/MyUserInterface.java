@@ -75,6 +75,13 @@ class MyUserInterface extends JFrame implements GameNet_UserInterface, ActionLis
         this.setVisible(true);
     }
     
+    private void updateSelectableTextFields(SelectableTextFieldState[] st)
+    {
+    	// Set the i'th field's state to the i'th st's state 
+    	for (int i = 0; i < st.length; i++)
+    		selectableTextFields.getField(ScoreTypes.values()[i]).setState(st[i]);
+    }
+    
     // Inner Class
     class Termination extends WindowAdapter
     {
