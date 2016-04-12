@@ -2,25 +2,22 @@ package my_networked_game;
 
 import gameNet.GameNet_UserInterface;
 import gameNet.GamePlayer;
+import my_networked_game.HelperClasses.SelectableTextField;
+import my_networked_game.HelperClasses.SelectableTextFieldGroup;
+import my_networked_game.HelperClasses.SelectableTextFieldState;
+import my_networked_game.Enums.ScoreTypes;
 
 import java.awt.BorderLayout;
-import java.awt.Color;
 import java.awt.GridLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
-import java.util.ResourceBundle.Control;
 
-import javax.swing.GroupLayout.Alignment;
 import javax.swing.ImageIcon;
-import javax.swing.JCheckBox;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
-import javax.swing.JScrollPane;
-import javax.swing.JTextArea;
-import javax.swing.JTextField;
 import javax.swing.SwingConstants;
 
 
@@ -30,6 +27,9 @@ class MyUserInterface extends JFrame implements GameNet_UserInterface, ActionLis
 
     private MyGameInput myGameInput;
     
+    private SelectableTextFieldGroup selectableTextFields = new SelectableTextFieldGroup();
+    
+    // Should be last
     private MainGamePanel mainGamePanel = new MainGamePanel();
 
     public MyUserInterface()
@@ -101,14 +101,14 @@ class MyUserInterface extends JFrame implements GameNet_UserInterface, ActionLis
     // I opted to just go with three bonuses since those are the rules I always played with.
     private class JahtzeeBonusPanel extends JPanel
     {
-    	JCheckBox firstBonus = null,
-    			  secondBonus = null,
-    			  thirdBonus = null;
+    	SelectableTextField firstBonus = null,
+    			  			secondBonus = null,
+    			  			thirdBonus = null;
     	
     	// Don't want to instantiate this constructor (debug code)
-    	private JahtzeeBonusPanel() { throw new RuntimeException("JahtzeeBonusPanel: Don't instantiate via argumentless constructor"); }
+    	private JahtzeeBonusPanel() { throw new RuntimeException("MyUserInterface.JahtzeeBonusPanel: Don't instantiate via default constructor"); }
     	
-    	public JahtzeeBonusPanel(JCheckBox first, JCheckBox second, JCheckBox third)
+    	public JahtzeeBonusPanel(SelectableTextField first, SelectableTextField second, SelectableTextField third)
 		{
     		firstBonus = first;
     		secondBonus = second;
@@ -127,7 +127,9 @@ class MyUserInterface extends JFrame implements GameNet_UserInterface, ActionLis
     
     private class ScoreCardPanel extends JPanel
     {
-    	ImageIcon iconOne 			= new ImageIcon("Resources\\One.png"),
+		private static final long serialVersionUID = -2349686691308606730L;
+
+		ImageIcon iconOne 			= new ImageIcon("Resources\\One.png"),
     			  iconTwo 			= new ImageIcon("Resources\\Two.png"),
     			  iconThree 		= new ImageIcon("Resources\\Three.png"),
     			  iconFour 			= new ImageIcon("Resources\\Four.png"),
@@ -160,32 +162,31 @@ class MyUserInterface extends JFrame implements GameNet_UserInterface, ActionLis
     			lblLowerTotal 		= new JLabel("Lower Section Total  ", SwingConstants.RIGHT),
     			lblGrandTotal 		= new JLabel("Grand Total  ", SwingConstants.RIGHT);
     	
-	    JTextField txtAces 				= new JTextField(),
-	    		   txtTwos 				= new JTextField(),
-	    		   txtThrees 			= new JTextField(),
-	    		   txtFours 			= new JTextField(),
-	    		   txtFives 			= new JTextField(),
-	    		   txtSixes 			= new JTextField(),
-	    		   txtTotal 			= new JTextField(),
-	    		   txtBonus 			= new JTextField(),
-	    		   txtUpperGrand		= new JTextField(),
-	    		   txt3Kind 			= new JTextField(),
-	    		   txt4Kind 			= new JTextField(),
-	    		   txtFullHouse 		= new JTextField(),
-	    		   txtSmStraight 		= new JTextField(),
-	    		   txtLgStraight 		= new JTextField(),
-	    		   txtJahtzee 			= new JTextField(),
-	    		   txtChance 			= new JTextField(),
-    			   txtJahtzeeBonusSum	= new JTextField(),
-	    		   txtUpperTotal 		= new JTextField(),
-	    		   txtLowerTotal 		= new JTextField(),
-	    		   txtGrandTotal 		= new JTextField();
-    	
-    	JCheckBox  firstJBonus = new JCheckBox(),
-    			   secondJBonus = new JCheckBox(),
-    			   thirdJBonus = new JCheckBox();
-    	
-    	JahtzeeBonusPanel jahtzeeBonusPanel = new JahtzeeBonusPanel(firstJBonus, secondJBonus, thirdJBonus);
+	    SelectableTextField txtAces 			= selectableTextFields.getField(ScoreTypes.ACES),
+	    		   			txtTwos 			= selectableTextFields.getField(ScoreTypes.TWOS),
+			    		    txtThrees 			= selectableTextFields.getField(ScoreTypes.THREES),
+			    		    txtFours 			= selectableTextFields.getField(ScoreTypes.FOURS),
+			    		    txtFives 			= selectableTextFields.getField(ScoreTypes.FIVES),
+			    		    txtSixes 			= selectableTextFields.getField(ScoreTypes.SIXES),
+			    		    txtTotal 			= selectableTextFields.getField(ScoreTypes.UPPER_SUB_TOTAL),
+			    		    txtBonus 			= selectableTextFields.getField(ScoreTypes.UPPER_BONUS),
+			    		    txtUpperGrand		= selectableTextFields.getField(ScoreTypes.UPPER_GRAND_TOTAL),
+			    		    txt3Kind 			= selectableTextFields.getField(ScoreTypes.KIND_3),
+			    		    txt4Kind 			= selectableTextFields.getField(ScoreTypes.KIND_4),
+			    		    txtFullHouse 		= selectableTextFields.getField(ScoreTypes.FULL_HOUSE),
+			    		    txtSmStraight 		= selectableTextFields.getField(ScoreTypes.SMALL_STRAIGHT),
+			    		    txtLgStraight 		= selectableTextFields.getField(ScoreTypes.LARGE_STRAIGHT),
+			    		    txtJahtzee 			= selectableTextFields.getField(ScoreTypes.JAHTZEE),
+			    		    txtChance 			= selectableTextFields.getField(ScoreTypes.CHANCE),
+			    		    txtJahtzeeBonus_1	= selectableTextFields.getField(ScoreTypes.JAHTZEE_BONUS_1),
+			    		    txtJahtzeeBonus_2	= selectableTextFields.getField(ScoreTypes.JAHTZEE_BONUS_2),
+			    		    txtJahtzeeBonus_3	= selectableTextFields.getField(ScoreTypes.JAHTZEE_BONUS_3),
+		    			    txtJahtzeeBonusSum	= selectableTextFields.getField(ScoreTypes.JAHTZEE_BONUS_TOTAL),
+			    		    txtUpperTotal 		= selectableTextFields.getField(ScoreTypes.FINAL_UPPER_GRAND_TOTAL),
+			    		    txtLowerTotal 		= selectableTextFields.getField(ScoreTypes.FINAL_LOWER_GRAND_TOTAL),
+			    		    txtGrandTotal 		= selectableTextFields.getField(ScoreTypes.FINAL_GRAND_TOTAL);
+		    	            
+    	JahtzeeBonusPanel jahtzeeBonusPanel = new JahtzeeBonusPanel(txtJahtzeeBonus_1, txtJahtzeeBonus_2, txtJahtzeeBonus_3);
     	
     	public ScoreCardPanel()
     	{
@@ -260,6 +261,14 @@ class MyUserInterface extends JFrame implements GameNet_UserInterface, ActionLis
     		this.add(txtLowerTotal);
     		this.add(lblGrandTotal);
     		this.add(txtGrandTotal);
+    		
+    		// Debug
+    		for (SelectableTextField field : selectableTextFields)
+    		{
+    			field.setState(new SelectableTextFieldState("///////////////////////////////", false, true));
+    		}
+    		// End Debug
+    	
     	}
     }
     

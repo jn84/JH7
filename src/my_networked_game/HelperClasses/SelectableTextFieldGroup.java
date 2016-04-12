@@ -1,35 +1,85 @@
 package my_networked_game.HelperClasses;
 
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
 import java.util.ArrayList;
+import java.util.Iterator;
 
-import my_networked_game.CustomUserControls.SelectableScoreTextField;
-import my_networked_game.Enums.ScoreFieldControlState;
+import javax.swing.JTextField;
 
-public class SelectableTextFieldGroup
+import my_networked_game.Enums.ScoreTypes;
+import my_networked_game.HelperClasses.SelectableTextFieldState;
+
+public class SelectableTextFieldGroup extends MouseAdapter implements Iterable<SelectableTextField>
 {
-	private ArrayList<SelectableScoreTextField> sstfList = new ArrayList<SelectableScoreTextField>();
+	private ArrayList<SelectableTextField> sstfList = new ArrayList<SelectableTextField>(ScoreTypes.values().length);
 	
-	public void addSelectableTextField(SelectableScoreTextField sstf)
+	public SelectableTextFieldGroup()
 	{
-		if (sstfList.contains(sstf))
-			return;
-		sstfList.add(sstf);
+		for (int i = 0; i < ScoreTypes.values().length; i++)
+		{
+			sstfList.add(new SelectableTextField(new SelectableTextFieldState()));
+			sstfList.get(i).addMouseListener
+			(
+					new MouseAdapter()
+					{
+						@Override
+						public void mouseClicked(MouseEvent e)
+						{
+							super.mouseClicked(e);
+							processClick(e);
+						}
+					}
+			);
+		}
 	}
 	
-	public void fieldSelected(SelectableScoreTextField obj)
+	private void processClick(MouseEvent e)
 	{
-		for (SelectableScoreTextField elem : sstfList)
+		// Field not selectable. Just quit
+		if (!((SelectableTextField)(e.getComponent())).isSelectable())
+			return;
+		
+		// Clear any currently selected field
+		clearSelected();
+		
+		// Set the newly selected field
+		for (SelectableTextField field : sstfList)
 		{
-			if (!elem.getIsSelectable())
-				continue;
-			
-			if (elem.equals(obj))
+			if (field.equals(e.getComponent()))
 			{
-				elem.setState(ScoreFieldControlState.SELECTED_MOVE);
-				continue;
+				field.setSelected(true);
+				return;
 			}
-			
-			elem.setState(ScoreFieldControlState.VALID_MOVE_TO_SELECT);
 		}
+	}
+	
+	private void clearSelected()
+	{
+		for (SelectableTextField field : sstfList)
+		{
+			if (!field.isSelected())
+				continue;
+			field.unselectField();
+		}
+	}
+	
+	public SelectableTextField getField(ScoreTypes type)
+	{
+		try
+		{
+			return sstfList.get(type.ordinal());
+		}
+		catch (NullPointerException e)
+		{
+			System.out.println("sstfList.get(type.ordinal()) is NULL");
+			return null;
+		}
+	}
+
+	@Override
+	public Iterator<SelectableTextField> iterator()
+	{
+		return sstfList.iterator();
 	}
 }
