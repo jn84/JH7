@@ -109,7 +109,7 @@ class GameServer extends Thread{
 
                     // Create a thread to process incoming connection
                     GamePlayerProcess1 gamePlayerChild = new GamePlayerProcess1(nextSock, this, nThreadCount++);
-                    gamePlayers.add(gamePlayerChild );
+                    gamePlayers.add(gamePlayerChild);
                     gamePlayerChild.start();
                 }
 

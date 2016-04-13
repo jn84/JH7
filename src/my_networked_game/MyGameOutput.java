@@ -15,7 +15,11 @@ public class MyGameOutput implements Serializable
 
 	// who generates player id? How do we ensure unique?
 	// Server should assign the ID on connection
+	// MAYBE:::::: PLAYER ID SHOULD BE DETERMINED BY CLIENT AND SERVER SEPARATELY 
+	// 			   SOME ALGORITHM MIGHT PRODUCE THE SAME ID ON DIFFERENT SYSTEMS
+	//			   THIS WAY WE DON'T HAVE TO PASS THE ID OVER THE NETWORK
 	long currentPlayerID = 0L;
+	
 	
 	// Everyone can see the rolls, but only the player identified by currentPlayerID can interact
 	// Each player's user interface will determine if they are the active player 
@@ -31,7 +35,12 @@ public class MyGameOutput implements Serializable
 	// Scoring data
 	// Should be an array of score information per player
 	// Players will pull their own scoresheet data since  they will know their PlayerID
-	HashMap scoresMap = new HashMap();
+	//HashMap<long, PlayerScoreData> scoresMap = new HashMap();
+	
+	public MyGameOutput()
+	{
+		//scoresMap.put(999L, new PlayerScoreData());
+	}
 	
 	public class PlayerScoreData
 	{

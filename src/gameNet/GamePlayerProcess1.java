@@ -57,7 +57,7 @@ class GamePlayerProcess1 extends Thread
     GamePlayerProcess1(Socket s, GameServer m, int me) 
     {
        socket = s;
-       myIndex= me;
+       myIndex = me;
        mom = m; // Mother GameServer Task
     }
 

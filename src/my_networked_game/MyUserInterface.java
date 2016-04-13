@@ -13,50 +13,66 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
+import java.util.ArrayList;
 import java.util.Random;
 
+import javax.swing.DefaultListModel;
 import javax.swing.ImageIcon;
+import javax.swing.JButton;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
+import javax.swing.JList;
 import javax.swing.JPanel;
+import javax.swing.ListModel;
 import javax.swing.SwingConstants;
+import javax.swing.border.Border;
+import javax.swing.event.ListDataEvent;
+import javax.swing.event.ListDataListener;
 
 
 class MyUserInterface extends JFrame implements GameNet_UserInterface, ActionListener
 {
-    private GamePlayer myGamePlayer;
+    /**
+	 * 
+	 */
+	private static final long serialVersionUID = -1558976730059939642L;
+
+	private GamePlayer myGamePlayer;
 
     private MyGameInput myGameInput;
     
     private SelectableTextFieldGroup selectableTextFields = new SelectableTextFieldGroup();
     
-    private long thisPlayerID = 0L;
+    private String thisPlayerID = "";
     
     // Should be last
     private MainGamePanel mainGamePanel = new MainGamePanel();
+    
+    private LobbyPanel lobbyPanel = new LobbyPanel();
 
     public MyUserInterface()
     {
         super("Jahtzee!");
-        this.myLayout();
-        this.add(mainGamePanel, BorderLayout.CENTER);
-        // Add secondary panels to center... ?
     }
     
     
     public void startUserInterface (GamePlayer player)
     {
-    	Random r = new Random();
         myGamePlayer = player;
-        //myGameInput = new MyGameInput(player.getPlayerName());
-        
-        // sloppy randomize player ID (odds of collision are near zero)
-        thisPlayerID = player.getId() + r.nextInt(10000000);
+        registerPlayer();
         
         // Boring screen things
-        myLayout();
+        this.myLayout();
+        //this.add(mainGamePanel, BorderLayout.CENTER);
+        this.add(lobbyPanel, BorderLayout.CENTER);
     }
     
+    public void registerPlayer()
+    {
+        Random r = new Random();
+        thisPlayerID = myGamePlayer.getPlayerName() + Integer.toString(r.nextInt(10000000));
+        myGamePlayer.sendMessage(new MyGameInput(myGamePlayer.getPlayerName(), thisPlayerID));
+    }
     
     public void receivedMessage(Object ob)
     {
@@ -98,9 +114,46 @@ class MyUserInterface extends JFrame implements GameNet_UserInterface, ActionLis
         }
     }
     
+    private class LobbyPanel extends JPanel
+    {
+		private static final long serialVersionUID = 2929935231853646535L;
+
+		private DefaultListModel<String> modelPlayers = new DefaultListModel<String>();
+    	
+    	private JList<String> lstPlayers = new JList<String>(modelPlayers);
+    	
+    	private JButton btnStartGame = new JButton("Start Game");
+    	
+    	public LobbyPanel()
+    	{
+    		super();
+    		this.setLayout(new BorderLayout());
+    		this.add(lstPlayers, BorderLayout.CENTER);
+    		this.add(btnStartGame, BorderLayout.SOUTH);
+    		
+    		this.removePlayer("Butt");
+    	}
+    	
+    	public void addPlayer(String username)
+    	{
+    		modelPlayers.addElement(username);
+    	}
+    	
+    	public void removePlayer(String username)
+    	{
+    		modelPlayers.removeElement(username);
+    	}
+    }
+    
+    
+    
     private class MainGamePanel extends JPanel
     {
-    	ScoreCardPanel scoreCardPanel = new ScoreCardPanel();
+    	/**
+		 * 
+		 */
+		private static final long serialVersionUID = 8419567275250570950L;
+		ScoreCardPanel scoreCardPanel = new ScoreCardPanel();
     	
     	public MainGamePanel()
 		{
@@ -115,7 +168,11 @@ class MyUserInterface extends JFrame implements GameNet_UserInterface, ActionLis
     // I opted to just go with three bonuses since those are the rules I always played with.
     private class JahtzeeBonusPanel extends JPanel
     {
-    	SelectableTextField firstBonus = null,
+    	/**
+		 * 
+		 */
+		private static final long serialVersionUID = 8349965766435856541L;
+		SelectableTextField firstBonus = null,
     			  			secondBonus = null,
     			  			thirdBonus = null;
     	
@@ -288,7 +345,12 @@ class MyUserInterface extends JFrame implements GameNet_UserInterface, ActionLis
     
     private class GamePlayPanel extends JPanel
     {
-    	public GamePlayPanel()
+    	/**
+		 * 
+		 */
+		private static final long serialVersionUID = -6209420231584759845L;
+
+		public GamePlayPanel()
     	{
     		// Dice + hold buttons
     		// Submit score/skip turn buttons
@@ -299,7 +361,12 @@ class MyUserInterface extends JFrame implements GameNet_UserInterface, ActionLis
     private class PlayerPanel extends JPanel
     {
     	
-    	public PlayerPanel(/* Read from player objects */)
+    	/**
+		 * 
+		 */
+		private static final long serialVersionUID = 223584231551437639L;
+
+		public PlayerPanel(/* Read from player objects */)
     	{
     		// for each player object, populate score list 
     		// JList?
@@ -313,7 +380,12 @@ class MyUserInterface extends JFrame implements GameNet_UserInterface, ActionLis
     private class DicePanel extends JPanel
     {
     	
-    	public DicePanel(/* Pass array of dice objects from MyGameOutput */)
+    	/**
+		 * 
+		 */
+		private static final long serialVersionUID = 4613984044887385150L;
+
+		public DicePanel(/* Pass array of dice objects from MyGameOutput */)
     	{
     		// Dice object array should be passed to this
     		// If null, show some sort of blank placeholder
@@ -327,7 +399,12 @@ class MyUserInterface extends JFrame implements GameNet_UserInterface, ActionLis
     
     private class ControlPanel extends JPanel
     {
-    	public ControlPanel()
+    	/**
+		 * 
+		 */
+		private static final long serialVersionUID = -7677841078925701810L;
+
+		public ControlPanel()
     	{
     		// Begins generation of MyGameOutput
     		// Gathers all info from entire window and packages it into MyGameOutput
@@ -337,13 +414,4 @@ class MyUserInterface extends JFrame implements GameNet_UserInterface, ActionLis
     		// Status bar (show current turn status/instructions)
     	}
     }
-    
-    private class LobbyPanel extends JPanel
-    {
-    	public LobbyPanel()
-    	{
-    		super();
-    	}
-    }
-
 }

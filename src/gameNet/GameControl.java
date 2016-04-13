@@ -67,8 +67,8 @@ public class GameControl
 
     void connect_to_server(String ipAddr, int serverPortNum)
     {
-    	this.ipAddr=ipAddr;
-    	this.serverPortNum=serverPortNum;
+    	this.ipAddr = ipAddr;
+    	this.serverPortNum = serverPortNum;
     }
     
       

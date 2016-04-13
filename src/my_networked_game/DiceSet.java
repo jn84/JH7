@@ -1,11 +1,14 @@
 package my_networked_game;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Random;
 
-public class DiceSet
+public class DiceSet implements Serializable
 {
+	private static final long serialVersionUID = -5247243649185425468L;
+
 	private ArrayList<DiceObj> diceList = new ArrayList<DiceObj>(5);
 	
 	public void DiceSet()
