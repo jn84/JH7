@@ -2,7 +2,6 @@ package my_networked_game;
 
 import gameNet.GameCreator;
 import gameNet.GameNet_CoreGame;
-import gameNet.GameNet_UserInterface;
 
 public class MyMain extends GameCreator
 {   
@@ -14,7 +13,7 @@ public class MyMain extends GameCreator
 	public static void main(String[] args) 
 	{   
 		MyMain myMain = new MyMain();
-		GameNet_UserInterface myUserInterface = new MyUserInterface();
+		MyUserInterface myUserInterface = new MyUserInterface();
 
 		myMain.enterGame(myUserInterface); 
 	}

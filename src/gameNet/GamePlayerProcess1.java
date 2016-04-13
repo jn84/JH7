@@ -5,13 +5,14 @@ import java.io.*;
 import java.util.*;
 
 
-class GamePlayerProcess1 extends Thread {
+class GamePlayerProcess1 extends Thread 
+{
     private Socket socket = null;
     int myIndex;
     boolean continueFlag = true;
-    ObjectOutputStream out=null;
+    ObjectOutputStream out = null;
     GameServer mom;
-    LinkedList<Object> msgObjects= new LinkedList<Object>(); 
+    LinkedList<Object> msgObjects = new LinkedList<Object>(); 
     
     synchronized void stopGamePlayer()
     {
@@ -57,7 +58,7 @@ class GamePlayerProcess1 extends Thread {
     {
        socket = s;
        myIndex= me;
-       mom =m; // Mother GameServer Task
+       mom = m; // Mother GameServer Task
     }
 
     public void run()

@@ -26,12 +26,12 @@ public class GamePlayer  extends Thread
 {
     GameNet_ConnectionBrokenInterface gameConnectionBrokenObj = null;
     private String playerName;
-    private GameControl gameControl=null;
+    private GameControl gameControl = null;
     
     Socket gameSocket = null;
-    ObjectInputStream socketInput=null;    
+    ObjectInputStream socketInput = null;    
     ObjectOutputStream socketOutput = null;
-	GameNet_UserInterface userInterface=null;
+	GameNet_UserInterface userInterface = null;
 
     boolean socketAlive = true;
    

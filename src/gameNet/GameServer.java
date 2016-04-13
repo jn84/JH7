@@ -6,7 +6,7 @@ import java.util.*;
 
 
 class GameServer extends Thread{
-    public String inetAddress=null;    
+    public String inetAddress = null;    
     LinkedList<GamePlayerProcess1> gamePlayers = new LinkedList<GamePlayerProcess1>();
     int portNum;
     boolean serverStarted = false;
@@ -73,9 +73,9 @@ class GameServer extends Thread{
     
     public void run()
     {
-        InetAddress iaddr=null;
+        InetAddress iaddr = null;
         Socket nextSock;
-        int nThreadCount=0;        
+        int nThreadCount = 0;        
            
         try {                
                 for(int i=0; i <= 20; i++)
@@ -110,7 +110,7 @@ class GameServer extends Thread{
                     // Create a thread to process incoming connection
                     GamePlayerProcess1 gamePlayerChild = new GamePlayerProcess1(nextSock, this, nThreadCount++);
                     gamePlayers.add(gamePlayerChild );
-                    gamePlayerChild .start();
+                    gamePlayerChild.start();
                 }
 
                 serverSocket.close();
@@ -135,7 +135,7 @@ class GameServer extends Thread{
         // the linkedlist.  This then affects subsequent iterations.  
         // This needs a picture to explain.
 
-        for (int i=gamePlayers.size()-1; i >= 0; i--)
+        for (int i = gamePlayers.size() - 1; i >= 0; i--)
         {
             GamePlayerProcess1 p = gamePlayers.get(i);
             p.stopGamePlayer();

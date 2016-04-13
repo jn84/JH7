@@ -3,6 +3,11 @@ package my_networked_game;
 import java.io.Serializable;
 import java.util.HashMap;
 
+import my_networked_game.Enums.MyGameOutputType;
+import my_networked_game.Enums.ScoreTypes;
+import my_networked_game.HelperClasses.SelectableTextFieldGroup;
+import my_networked_game.HelperClasses.SelectableTextFieldState;
+
 public class MyGameOutput implements Serializable
 {
 	
@@ -16,10 +21,11 @@ public class MyGameOutput implements Serializable
 	// Each player's user interface will determine if they are the active player 
 	DiceSet diceSet = new DiceSet();
 	
-	//
+	// Player names/scores for score list
+	
 	//
 	// Need some sort of game state object
-	//
+	// Why? Should say why.
 	//
 	
 	// Scoring data
@@ -29,61 +35,8 @@ public class MyGameOutput implements Serializable
 	
 	public class PlayerScoreData
 	{
-		// might be better made as an enum with arrays
-		
-		// if a move is valid or not
-		// used with custom textfield object
-		boolean isValid_Aces,              
-				isValid_Twos,              
-				isValid_Threes,            
-				isValid_Fours,             
-				isValid_Fives,             
-				isValid_Sixes,             
-				// isValid_UpperSubTotal,     
-				// isValid_UpperBonus,        
-				// isValid_UpperGrandTotal,   
-				isValid_3Kind,             
-				isValid_4Kind,             
-				isValid_FullHouse,         
-				isValid_SmStriaght,        
-				isValid_LgStriaght,        
-				isValid_Jahtzee,           
-				isValid_Chance,            
-				isValid_JahtzeeBonus_1,    
-				isValid_JahtzeeBonus_2,    
-				isValid_JahtzeeBonus_3,    
-				// isValid_JahtzeeBonusTotal, 
-				// isValid_UpperGrandTotal,
-				isValid_LowerGrandTotal,   
-				isValid_GrandTotal;        
+		SelectableTextFieldState[] scoreData = new SelectableTextFieldState[ScoreTypes.values().length];
 		
 		
-		// -1 means crossed out value
-		// 0 means unassigned
-		//
-		int score_Aces,
-			score_Twos,
-			score_Threes,
-			score_Fours,
-			score_Fives,
-			score_Sixes,
-			score_UpperSubTotal,
-			score_UpperBonus,
-			score_UpperGrandTotal,
-			score_3Kind,
-			score_4Kind,
-			score_FullHouse,
-			score_SmStriaght,
-			score_LgStriaght,
-			score_Jahtzee,
-			score_Chance,
-			score_JahtzeeBonus_1,
-			score_JahtzeeBonus_2,
-			score_JahtzeeBonus_3,
-			score_JahtzeeBonusTotal,
-			// score_UpperGrandTotal,
-			score_LowerGrandTotal,
-			score_GrandTotal;
-			
 	}
 }
