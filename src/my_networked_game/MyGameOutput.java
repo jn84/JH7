@@ -1,10 +1,12 @@
 package my_networked_game;
 
 import java.io.Serializable;
+import java.util.ArrayList;
 import java.util.HashMap;
 
 import my_networked_game.Enums.MyGameOutputType;
 import my_networked_game.Enums.ScoreTypes;
+import my_networked_game.HelperClasses.Player;
 import my_networked_game.HelperClasses.SelectableTextFieldGroup;
 import my_networked_game.HelperClasses.SelectableTextFieldState;
 
@@ -13,17 +15,17 @@ public class MyGameOutput implements Serializable
 	
 	private static final long serialVersionUID = 5334344851444190266L;
 
-	// who generates player id? How do we ensure unique?
-	// Server should assign the ID on connection
-	// MAYBE:::::: PLAYER ID SHOULD BE DETERMINED BY CLIENT AND SERVER SEPARATELY 
-	// 			   SOME ALGORITHM MIGHT PRODUCE THE SAME ID ON DIFFERENT SYSTEMS
-	//			   THIS WAY WE DON'T HAVE TO PASS THE ID OVER THE NETWORK
-	long currentPlayerID = 0L;
+	private MyGameOutputType outputType = null;
 	
+	private Player currentActivePlayer = null;
+
+	private ArrayList<Player> playerList = null;
+	
+	private ArrayList<String> messageList = new ArrayList<String>();
 	
 	// Everyone can see the rolls, but only the player identified by currentPlayerID can interact
 	// Each player's user interface will determine if they are the active player 
-	DiceSet diceSet = new DiceSet();
+	DiceSet diceSet = null;
 	
 	// Player names/scores for score list
 	
@@ -37,15 +39,45 @@ public class MyGameOutput implements Serializable
 	// Players will pull their own scoresheet data since  they will know their PlayerID
 	//HashMap<long, PlayerScoreData> scoresMap = new HashMap();
 	
-	public MyGameOutput()
+	/**
+	 * Constructor to register a new player or specatator
+	 * 
+	 * @param name
+	 * Name of the player registering
+	 * @param ID
+	 * ID of the player registering
+	 */
+	public MyGameOutput(Player p, MyGameOutputType type)
 	{
-		//scoresMap.put(999L, new PlayerScoreData());
+		currentActivePlayer = p;
+		outputType = type;
 	}
 	
-	public class PlayerScoreData
+	/**
+	 * 	Main game constructor
+	 */
+	public MyGameOutput(Player currentPlayer, ArrayList<Player> playerList, DiceSet diceSet)
 	{
-		SelectableTextFieldState[] scoreData = new SelectableTextFieldState[ScoreTypes.values().length];
+		this.currentActivePlayer = currentPlayer;
+		this.playerList = playerList;
+		this.diceSet = diceSet;
+		
+		diceSet.roll();
+		
+		// TODO
+		// This should now check what moves are valid for the current player, and get/build array of SelectableTextFieldState[]
 		
 		
+		outputType = MyGameOutputType.MAIN_GAME; 
+	}
+	
+	public MyGameOutputType getOutputType()
+	{
+		return outputType;
+	}
+	
+	public Player getActivePlayer()
+	{
+		return currentActivePlayer;
 	}
 }

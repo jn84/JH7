@@ -2,6 +2,7 @@ package my_networked_game;
 
 import gameNet.GameNet_UserInterface;
 import gameNet.GamePlayer;
+import my_networked_game.HelperClasses.Player;
 import my_networked_game.HelperClasses.SelectableTextField;
 import my_networked_game.HelperClasses.SelectableTextFieldGroup;
 import my_networked_game.HelperClasses.SelectableTextFieldState;
@@ -43,7 +44,9 @@ class MyUserInterface extends JFrame implements GameNet_UserInterface, ActionLis
     
     private SelectableTextFieldGroup selectableTextFields = new SelectableTextFieldGroup();
     
-    private String thisPlayerID = "";
+    private PlayerListPanel playerListPanel = new PlayerListPanel();
+    
+    private Player thisPlayer = null;
     
     // Should be last
     private MainGamePanel mainGamePanel = new MainGamePanel();
@@ -70,13 +73,30 @@ class MyUserInterface extends JFrame implements GameNet_UserInterface, ActionLis
     public void registerPlayer()
     {
         Random r = new Random();
-        thisPlayerID = myGamePlayer.getPlayerName() + Integer.toString(r.nextInt(10000000));
-        myGamePlayer.sendMessage(new MyGameInput(myGamePlayer.getPlayerName(), thisPlayerID));
+        thisPlayer = new Player(myGamePlayer.getPlayerName(), Integer.toString(r.nextInt(10000000)), 0); 
+        myGamePlayer.sendMessage(new MyGameInput(thisPlayer));
     }
     
     public void receivedMessage(Object ob)
     {
+    	MyGameOutput myGameOutput = (MyGameOutput)ob;
     	
+    	switch (myGameOutput.getOutputType())
+    	{
+    	case PLAYER_REGISTERED:
+    		playerListPanel.addPlayer(myGameOutput.getActivePlayer());
+    		break;
+    	case PLAYER_UNREGISTERED:
+    		playerListPanel.removePlayer(myGameOutput.getActivePlayer());
+    		break;
+    	case GAME_BEGIN:
+    		//TODO
+    		// Switch to MainGamePanel
+    		break;
+		default:
+			break;
+    		
+    	}
     }
     
     public void actionPerformed(ActionEvent e) 
@@ -116,32 +136,43 @@ class MyUserInterface extends JFrame implements GameNet_UserInterface, ActionLis
     
     private class LobbyPanel extends JPanel
     {
-		private static final long serialVersionUID = 2929935231853646535L;
-
-		private DefaultListModel<String> modelPlayers = new DefaultListModel<String>();
-    	
-    	private JList<String> lstPlayers = new JList<String>(modelPlayers);
-    	
     	private JButton btnStartGame = new JButton("Start Game");
     	
     	public LobbyPanel()
     	{
     		super();
     		this.setLayout(new BorderLayout());
-    		this.add(lstPlayers, BorderLayout.CENTER);
+    		this.add(playerListPanel, BorderLayout.CENTER);
     		this.add(btnStartGame, BorderLayout.SOUTH);
-    		
-    		this.removePlayer("Butt");
+    	}
+    }
+    
+    private class PlayerListPanel extends JPanel
+    {
+		private static final long serialVersionUID = 2929935231853646535L;
+
+		private DefaultListModel<Player> modelPlayers = new DefaultListModel<Player>();
+    	
+    	private JList<Player> lstPlayers = new JList<Player>(modelPlayers);
+    	
+    	
+    	public PlayerListPanel()
+    	{
+    		super();
+    		this.setLayout(new BorderLayout());
+    		this.add(lstPlayers, BorderLayout.CENTER);
     	}
     	
-    	public void addPlayer(String username)
+    	public void addPlayer(Player p)
     	{
-    		modelPlayers.addElement(username);
+    		if (!modelPlayers.contains(p))
+    			modelPlayers.addElement(p);
     	}
     	
-    	public void removePlayer(String username)
+    	public void removePlayer(Player p)
     	{
-    		modelPlayers.removeElement(username);
+    		if (modelPlayers.contains(p))
+    			modelPlayers.removeElement(p);
     	}
     }
     

@@ -10,7 +10,7 @@ public class SelectableTextFieldState
 	public String fieldValue = "";
 	
 	public boolean isSelected = false,
-					isSelectable = false;
+				   isSelectable = false;
 
 	public SelectableTextFieldState() {}
 	

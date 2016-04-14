@@ -76,6 +76,15 @@ public class SelectableTextFieldGroup extends MouseAdapter implements Iterable<S
 			return null;
 		}
 	}
+	
+	public SelectableTextFieldState[] getStates()
+	{
+		SelectableTextFieldState[] states = new SelectableTextFieldState[sstfList.size()];
+		
+		for (int i = 0; i < sstfList.size(); i++)
+			states[i] = sstfList.get(i).getState();		
+		return states;
+	}
 
 	@Override
 	public Iterator<SelectableTextField> iterator()

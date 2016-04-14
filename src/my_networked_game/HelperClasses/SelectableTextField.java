@@ -24,6 +24,11 @@ public class SelectableTextField extends JTextField
 		update();
 	}
 	
+	public SelectableTextFieldState getState()
+	{
+		return state;
+	}
+	
 	private void update()
 	{
 		if (state.isSelectable)

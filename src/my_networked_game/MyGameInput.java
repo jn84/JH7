@@ -3,6 +3,7 @@ package my_networked_game;
 import java.io.Serializable;
 
 import my_networked_game.Enums.MyGameInputType;
+import my_networked_game.HelperClasses.Player;
 
 public class MyGameInput implements Serializable
 {
@@ -18,17 +19,33 @@ public class MyGameInput implements Serializable
 	/**
 	 * Use this constructor ONLY to register the player
 	 * 
-	 * @param username
-	 * The sending player's username
+	 * @param p
+	 * The sending player's ID object
 	 * 
-	 * @param playerID
-	 * The sending player's playerID
 	 */
-	public MyGameInput(String username, String playerID)
+	public MyGameInput(Player p)
 	{
-		originatingName = username;
-		originatingID = playerID;
+		originatingName = p.getName();
+		originatingID = p.getID();
 		inputType = MyGameInputType.REGISTER_PLAYER;
+	}
+	
+	/**
+	 * 
+	 * Use this constructor in cases where a player left the game 
+	 * 
+	 * @param type 
+	 * The type of action to force
+	 * 
+	 */
+	public MyGameInput(MyGameInputType type)
+	{
+		inputType = type;
+	}
+	
+	public MyGameInput()
+	{
+		
 	}
 	
 	public MyGameInputType getInputType()

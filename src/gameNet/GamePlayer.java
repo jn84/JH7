@@ -208,8 +208,8 @@ public class GamePlayer  extends Thread
         System.out.println("GamePlayer.exitGame " + playerName);
         try{
                 if (socketOutput != null) socketOutput.close(); // Close output stream side of the socket
-                if (socketInput != null)socketInput.close();  // Close input stream side of socket
-                if (gameSocket != null)gameSocket.close();  // Close the socket
+                if (socketInput != null) socketInput.close();  // Close input stream side of socket
+                if (gameSocket != null) gameSocket.close();  // Close the socket
             }
         catch (IOException e){}
     } 
