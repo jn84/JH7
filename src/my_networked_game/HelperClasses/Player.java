@@ -13,6 +13,8 @@ public class Player implements Serializable, Comparable<Player>
 	 */
 	private static final long serialVersionUID = -5653482748891502216L;
 	
+	SelectableTextFieldState[] scoreData = new SelectableTextFieldState[ScoreTypes.values().length];
+	
 	String playerName = "",
 		   playerID = "";
 	
@@ -63,10 +65,5 @@ public class Player implements Serializable, Comparable<Player>
 	            return true;
 
 	        return (((Player)obj).playerID == this.playerID);
-	}
-	
-	public class PlayerScoreData
-	{
-		SelectableTextFieldState[] scoreData = new SelectableTextFieldState[ScoreTypes.values().length];
 	}
 }

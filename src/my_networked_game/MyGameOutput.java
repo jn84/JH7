@@ -23,6 +23,8 @@ public class MyGameOutput implements Serializable
 	
 	private ArrayList<String> messageList = new ArrayList<String>();
 	
+	private SelectableTextFieldState[] textFieldStates = null;
+	
 	// Everyone can see the rolls, but only the player identified by currentPlayerID can interact
 	// Each player's user interface will determine if they are the active player 
 	DiceSet diceSet = null;
@@ -66,6 +68,9 @@ public class MyGameOutput implements Serializable
 		
 		// TODO
 		// This should now check what moves are valid for the current player, and get/build array of SelectableTextFieldState[]
+		// This information should be pulled (or pushed) from MyGame
+		/// ....
+		// Maybe not. each playerList object contains this array.. so this array should be prepared before calling this method
 		
 		
 		outputType = MyGameOutputType.MAIN_GAME; 

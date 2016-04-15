@@ -48,7 +48,7 @@ public class SelectableTextFieldGroup extends MouseAdapter implements Iterable<S
 		{
 			if (field.equals(e.getComponent()))
 			{
-				field.setSelected(true);
+				field.selectField();
 				return;
 			}
 		}

@@ -45,7 +45,7 @@ public class MyGameInput implements Serializable
 	
 	public MyGameInput()
 	{
-		
+		// get field states
 	}
 	
 	public MyGameInputType getInputType()

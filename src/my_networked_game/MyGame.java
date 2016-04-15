@@ -103,6 +103,8 @@ public class MyGame extends GameNet_CoreGame implements Serializable
 	
 	private MyGameOutput generateNewTurn()
 	{
+		// TODO Should populate the SelectableTextFieldState[] array in each Player object. MyGameOutput relies on this.
+		
 		return new MyGameOutput(currentPlayer, playerList, new DiceSet());
 	}
 	

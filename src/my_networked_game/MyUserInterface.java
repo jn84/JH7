@@ -9,7 +9,9 @@ import my_networked_game.HelperClasses.SelectableTextFieldState;
 import my_networked_game.Enums.ScoreTypes;
 
 import java.awt.BorderLayout;
+import java.awt.Component;
 import java.awt.GridLayout;
+import java.awt.Image;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.WindowAdapter;
@@ -17,9 +19,11 @@ import java.awt.event.WindowEvent;
 import java.util.ArrayList;
 import java.util.Random;
 
+import javax.swing.DefaultListCellRenderer;
 import javax.swing.DefaultListModel;
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
+import javax.swing.JCheckBox;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JList;
@@ -64,7 +68,7 @@ class MyUserInterface extends JFrame implements GameNet_UserInterface, ActionLis
         myGamePlayer = player;
         registerPlayer();
         
-        // Boring screen things
+        // Boring screen things 
         this.myLayout();
         //this.add(mainGamePanel, BorderLayout.CENTER);
         this.add(lobbyPanel, BorderLayout.CENTER);
@@ -147,6 +151,7 @@ class MyUserInterface extends JFrame implements GameNet_UserInterface, ActionLis
     	}
     }
     
+    // used in lobby and in main game
     private class PlayerListPanel extends JPanel
     {
 		private static final long serialVersionUID = 2929935231853646535L;
@@ -155,10 +160,10 @@ class MyUserInterface extends JFrame implements GameNet_UserInterface, ActionLis
     	
     	private JList<Player> lstPlayers = new JList<Player>(modelPlayers);
     	
-    	
     	public PlayerListPanel()
     	{
     		super();
+    		lstPlayers.setCellRenderer(new PlayerListRenderer());
     		this.setLayout(new BorderLayout());
     		this.add(lstPlayers, BorderLayout.CENTER);
     	}
@@ -174,16 +179,45 @@ class MyUserInterface extends JFrame implements GameNet_UserInterface, ActionLis
     		if (modelPlayers.contains(p))
     			modelPlayers.removeElement(p);
     	}
+    	
+    	public void updatePlayer(Player p)
+    	{
+    		if (!modelPlayers.contains(p))
+    			return;
+    		
+    		// We can use indexOf since equals is defined in the Player class
+    		modelPlayers.set(modelPlayers.indexOf(p), p);
+    	}
+    	
+    	class PlayerListRenderer extends DefaultListCellRenderer
+    	{
+
+			/**
+			 * 
+			 */
+			private static final long serialVersionUID = -5399505231573174050L;
+
+			public Component getListCellRendererComponent(JList list, Object playerObj, int index, boolean isSelected, boolean cellHasFocus)
+    	    {
+    	        super.getListCellRendererComponent(list, playerObj, index, isSelected, cellHasFocus);
+
+    	        Player player = (Player)playerObj;
+    	        setText(player.getName() + " (" + player.getScore() + ")");
+
+    	        return this;
+    	    }
+    	}
     }
     
     
-    
+    // Right side panel (dice, buttons, player list)
     private class MainGamePanel extends JPanel
     {
     	/**
 		 * 
 		 */
 		private static final long serialVersionUID = 8419567275250570950L;
+		
 		ScoreCardPanel scoreCardPanel = new ScoreCardPanel();
     	
     	public MainGamePanel()
@@ -194,38 +228,59 @@ class MyUserInterface extends JFrame implements GameNet_UserInterface, ActionLis
 		}
     }
     
-    // Deals with yahtzee bonuses (2 or more yahtzees) 
-    // Could be dynamic. If all rolls happened to be yahztees, we could keep adding bonus slots.
-    // I opted to just go with three bonuses since those are the rules I always played with.
-    private class JahtzeeBonusPanel extends JPanel
+    //
+    //
+    //
+    //
+    //
+    //
+    //
+    //
+    //
+    //		CURRENT TASK:	BUILDING THE RIGHT SIDE PANEL
+    //
+    //
+    //
+    //
+    //
+    //
+    //
+    //
+    //
+    //
+    
+    private class DicePanel extends JPanel
     {
-    	/**
-		 * 
-		 */
-		private static final long serialVersionUID = 8349965766435856541L;
-		SelectableTextField firstBonus = null,
-    			  			secondBonus = null,
-    			  			thirdBonus = null;
     	
-    	// Don't want to instantiate this constructor (debug code)
-    	private JahtzeeBonusPanel() { throw new RuntimeException("MyUserInterface.JahtzeeBonusPanel: Don't instantiate via default constructor"); }
-    	
-    	public JahtzeeBonusPanel(SelectableTextField first, SelectableTextField second, SelectableTextField third)
-		{
-    		firstBonus = first;
-    		secondBonus = second;
-    		thirdBonus = third;
-    		
-    		firstBonus.setHorizontalAlignment(SwingConstants.CENTER);
-    		secondBonus.setHorizontalAlignment(SwingConstants.CENTER);
-    		thirdBonus.setHorizontalAlignment(SwingConstants.CENTER);
-    		
-    		this.setLayout(new GridLayout(1, 0));
-    		this.add(firstBonus);
-    		this.add(secondBonus);
-    		this.add(thirdBonus);
-		}
     }
+    
+    private class DiceLabelPanel extends JPanel
+    {
+    	JLabel lblDie_1 = new JLabel("Held", JLabel.CENTER);
+    	JLabel lblDie_2 = new JLabel("Held", JLabel.CENTER);
+    	JLabel lblDie_3 = new JLabel("Held", JLabel.CENTER);
+    	JLabel lblDie_4 = new JLabel("Held", JLabel.CENTER);
+    	JLabel lblDie_5 = new JLabel("Held", JLabel.CENTER);
+    }
+    
+    private class DiceImagePanel extends JPanel
+    {
+    	Image die_1 = null;
+    	Image die_2 = null;
+    	Image die_3 = null;
+    	Image die_4 = null;
+    	Image die_5 = null;
+    }
+    
+    private class DiceCheckBoxPanel extends JPanel
+    {
+    	JCheckBox chk_1 = new JCheckBox();
+    	JCheckBox chk_2 = new JCheckBox();
+    	JCheckBox chk_3 = new JCheckBox();
+    	JCheckBox chk_4 = new JCheckBox();
+    	JCheckBox chk_5 = new JCheckBox();
+    }
+    
     
     private class ScoreCardPanel extends JPanel
     {
@@ -389,60 +444,41 @@ class MyUserInterface extends JFrame implements GameNet_UserInterface, ActionLis
     	}
     }
     
-    private class PlayerPanel extends JPanel
+    private class DicePanel
     {
-    	
-    	/**
-		 * 
-		 */
-		private static final long serialVersionUID = 223584231551437639L;
-
-		public PlayerPanel(/* Read from player objects */)
-    	{
-    		// for each player object, populate score list 
-    		// JList?
-    		// See: http://www.java2s.com/Code/Java/Swing-JFC/UseJListcomponenttodisplaycustomobjectswithListCellRenderer.htm
-    		// Player objects should do what that page does... I think
-    	}
-    	
     	
     }
     
-    private class DicePanel extends JPanel
+    // Deals with yahtzee bonuses (2 or more yahtzees) 
+    // Could be dynamic. If all rolls happened to be yahztees, we could keep adding bonus slots.
+    // I opted to just go with three bonuses since those are the rules I always played with.
+    private class JahtzeeBonusPanel extends JPanel
     {
+    	/**
+		 * 
+		 */
+		private static final long serialVersionUID = 8349965766435856541L;
+		SelectableTextField firstBonus = null,
+    			  			secondBonus = null,
+    			  			thirdBonus = null;
     	
-    	/**
-		 * 
-		 */
-		private static final long serialVersionUID = 4613984044887385150L;
-
-		public DicePanel(/* Pass array of dice objects from MyGameOutput */)
-    	{
-    		// Dice object array should be passed to this
-    		// If null, show some sort of blank placeholder
-    		// Pass null if no dice to show
-    		// Should check if active player is THIS player, and disable controls as necessary
-    		// We still want to see other player's rolls
-    		// All objects should be instantiated in main JFrame class (MyUserInterface)
-    		// Roll dice button
-    	}
-    }
-    
-    private class ControlPanel extends JPanel
-    {
-    	/**
-		 * 
-		 */
-		private static final long serialVersionUID = -7677841078925701810L;
-
-		public ControlPanel()
-    	{
-    		// Begins generation of MyGameOutput
-    		// Gathers all info from entire window and packages it into MyGameOutput
-    		// Submit Score button
-    		// Skip turn button (should allow for crossing out an unused score)
-    		///// Might need to eliminate skipping turns
-    		// Status bar (show current turn status/instructions)
-    	}
+    	// Don't want to instantiate this constructor (debug code)
+    	private JahtzeeBonusPanel() { throw new RuntimeException("MyUserInterface.JahtzeeBonusPanel: Don't instantiate via default constructor"); }
+    	
+    	public JahtzeeBonusPanel(SelectableTextField first, SelectableTextField second, SelectableTextField third)
+		{
+    		firstBonus = first;
+    		secondBonus = second;
+    		thirdBonus = third;
+    		
+    		firstBonus.setHorizontalAlignment(SwingConstants.CENTER);
+    		secondBonus.setHorizontalAlignment(SwingConstants.CENTER);
+    		thirdBonus.setHorizontalAlignment(SwingConstants.CENTER);
+    		
+    		this.setLayout(new GridLayout(1, 0));
+    		this.add(firstBonus);
+    		this.add(secondBonus);
+    		this.add(thirdBonus);
+		}
     }
 }

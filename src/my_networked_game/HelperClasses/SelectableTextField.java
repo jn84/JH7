@@ -56,9 +56,9 @@ public class SelectableTextField extends JTextField
 		update();
 	}
 	
-	public void setSelected(boolean selected)
+	public void selectField()
 	{
-		state.isSelected = selected;
+		state.isSelected = true;
 		update();
 	}
 	
