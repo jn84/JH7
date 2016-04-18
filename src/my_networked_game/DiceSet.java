@@ -5,13 +5,15 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Random;
 
+import my_networked_game.HelperClasses.DiceObj;
+
 public class DiceSet implements Serializable
 {
 	private static final long serialVersionUID = -5247243649185425468L;
 
 	private ArrayList<DiceObj> diceList = new ArrayList<DiceObj>(5);
 	
-	public void DiceSet()
+	public DiceSet()
 	{
 		for (DiceObj dice : diceList)
 			dice = new DiceObj();
@@ -52,48 +54,9 @@ public class DiceSet implements Serializable
 		ArrayList<Integer> diceValues = new ArrayList<Integer>();
 		
 		for (DiceObj dice : diceList)
-			diceValues.add(new Integer(dice.value));
+			diceValues.add(new Integer(dice.getValue()));
 		
 		return diceValues;
 		
-	}
-
-	
-	private class DiceObj implements Comparable<DiceObj>
-	{
-		private boolean isHeld = false;
-		private int value;
-		
-		Random r = new Random();
-		
-		public DiceObj()
-		{
-			this.reset();
-		}
-		
-		public void generateNewValue()
-		{
-			if (isHeld)
-				return;
-			value = r.nextInt(6) + 1;
-		}
-		
-		public void setIsHeld(boolean value)
-		{
-			isHeld = value;
-		}
-		
-		public void reset()
-		{
-			isHeld = false;
-			value = r.nextInt(6) +  1;
-		}
-		
-		@Override
-		public int compareTo(DiceObj o)
-		{
-			// switch values if sort order is wrong
-			return this.value - o.value;
-		}
 	}
 }

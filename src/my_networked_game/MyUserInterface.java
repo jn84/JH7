@@ -2,6 +2,9 @@ package my_networked_game;
 
 import gameNet.GameNet_UserInterface;
 import gameNet.GamePlayer;
+import my_networked_game.HelperClasses.DiceObj;
+import my_networked_game.HelperClasses.ImageCheckBox;
+import my_networked_game.HelperClasses.ImageCheckBoxPanel;
 import my_networked_game.HelperClasses.Player;
 import my_networked_game.HelperClasses.SelectableTextField;
 import my_networked_game.HelperClasses.SelectableTextFieldGroup;
@@ -12,6 +15,7 @@ import java.awt.BorderLayout;
 import java.awt.Component;
 import java.awt.GridLayout;
 import java.awt.Image;
+import java.awt.ImageCapabilities;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.WindowAdapter;
@@ -251,7 +255,9 @@ class MyUserInterface extends JFrame implements GameNet_UserInterface, ActionLis
     
     private class DicePanel extends JPanel
     {
-    	
+    	// Labels (north)
+    	// Images (center)
+    	// Textboxes (south)
     }
     
     private class DiceLabelPanel extends JPanel
@@ -263,35 +269,56 @@ class MyUserInterface extends JFrame implements GameNet_UserInterface, ActionLis
     	JLabel lblDie_5 = new JLabel("Held", JLabel.CENTER);
     }
     
-    private class DiceImagePanel extends JPanel
-    {
-    	Image die_1 = null;
-    	Image die_2 = null;
-    	Image die_3 = null;
-    	Image die_4 = null;
-    	Image die_5 = null;
-    }
-    
+    // TODO If there are issues with dice being held, this might be the culprit
     private class DiceCheckBoxPanel extends JPanel
     {
-    	JCheckBox chk_1 = new JCheckBox();
-    	JCheckBox chk_2 = new JCheckBox();
-    	JCheckBox chk_3 = new JCheckBox();
-    	JCheckBox chk_4 = new JCheckBox();
-    	JCheckBox chk_5 = new JCheckBox();
+    	ImageCheckBox die_1 = null,
+    				  die_2 = null,
+    				  die_3 = null,
+    				  die_4 = null,
+    				  die_5 = null;
+    	
+    	DiceSet currentDice = null;
+    	//
+    	//
+    	//
+    	//
+    	//
+    	//
+    	//
+    	//
+    	//
+    	//
+    	//
+    	// WORKING ON THE DICE PANEL
+    	//
+    	//
+    	//
+    	//
+    	//
+    	//
+    	//
+    	//
+    	//
+    	//
+    	public DiceCheckBoxPanel(DiceSet dice)
+    	{
+    		super();
+    		currentDice = null;
+    	}
+    	
+    	public void setDice(DiceSet dice)
+    	{
+    		for (int i = 0; i < 5; i++)
+    		{
+    			die_1.
+    		}
+    	}
     }
-    
     
     private class ScoreCardPanel extends JPanel
     {
 		private static final long serialVersionUID = -2349686691308606730L;
-
-		ImageIcon iconOne 			= new ImageIcon("Resources\\One.png"),
-    			  iconTwo 			= new ImageIcon("Resources\\Two.png"),
-    			  iconThree 		= new ImageIcon("Resources\\Three.png"),
-    			  iconFour 			= new ImageIcon("Resources\\Four.png"),
-    			  iconFive 			= new ImageIcon("Resources\\Five.png"),
-    			  iconSix 			= new ImageIcon("Resources\\Six.png");
     	
     	JLabel  lblUpperHeader		= new JLabel("UPPER SECTION", SwingConstants.CENTER),
     			lblLowerHeader		= new JLabel("LOWER SECTION", SwingConstants.CENTER),
