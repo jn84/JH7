@@ -20,12 +20,13 @@ import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JList;
 import javax.swing.JPanel;
+import javax.swing.JScrollPane;
+import javax.swing.JTextArea;
 import javax.swing.SwingConstants;
 
 import gameNet.GameNet_UserInterface;
 import gameNet.GamePlayer;
 import my_networked_game.Enums.ScoreTypes;
-import my_networked_game.HelperClasses.DiceObj;
 import my_networked_game.HelperClasses.Player;
 import my_networked_game.HelperClasses.SelectableTextField;
 import my_networked_game.HelperClasses.SelectableTextFieldGroup;
@@ -63,6 +64,13 @@ class MyUserInterface extends JFrame implements GameNet_UserInterface, ActionLis
     
     private DicePanel dicePanel = new DicePanel();
     
+    private JButton submitButton = new JButton("Submit Score"),
+    				skipButton   = new JButton("Skip Turn");
+    
+    private ButtonPanel buttonPanel = new ButtonPanel();
+    
+    private GameStatusUpdatePanel gameStatusUpdatePanel = new GameStatusUpdatePanel();
+    		    
     // Should be last
     private MainGamePanel mainGamePanel = new MainGamePanel();
 
@@ -81,6 +89,64 @@ class MyUserInterface extends JFrame implements GameNet_UserInterface, ActionLis
         this.myLayout();
         this.add(mainGamePanel, BorderLayout.CENTER);
         //this.add(lobbyPanel, BorderLayout.CENTER);
+        
+        submitButton.addActionListener(new ActionListener()
+		{
+			
+			@Override
+			public void actionPerformed(ActionEvent e)
+			{
+				submitClick();
+			}
+		});
+        
+        skipButton.addActionListener(new ActionListener()
+		{
+			
+			@Override
+			public void actionPerformed(ActionEvent e)
+			{
+				skipClick();
+			}
+		});
+    }
+    //
+    //
+    //
+    //
+    //
+    //
+    //
+    //
+    //
+    //
+    //
+    //
+    //	Working on buttons.
+    //	Added methods for button clicks.
+    //	Worked on server output -- seems to work when added after everything is made.
+    //	
+    //
+    //
+    //
+    //
+    //
+    //
+    //
+    //
+    //
+    //
+    
+    public void submitClick()
+    {
+    	//TODO Define what happens when the submit button is clicked.
+		gameStatusUpdatePanel.addServerOutputText("SUBMIT CLICK!");
+    }
+    
+    public void skipClick()
+    {
+    	// TODO Define what happens when the skip button is clicked.
+		gameStatusUpdatePanel.addServerOutputText("SKIP CLICK!");
     }
     
     public void registerPlayer()
@@ -105,6 +171,7 @@ class MyUserInterface extends JFrame implements GameNet_UserInterface, ActionLis
     	case GAME_BEGIN:
     		//TODO
     		// Switch to MainGamePanel
+    		// also should get first player package (dice and scoresheets)
     		break;
 		default:
 			break;
@@ -234,7 +301,7 @@ class MyUserInterface extends JFrame implements GameNet_UserInterface, ActionLis
 		{
     		super();
     		this.setLayout(new GridLayout(0, 2));
-    		//this.add(scoreCardPanel);
+    		this.add(scoreCardPanel);
     		this.add(gamePlayPanel);
 		}
     }
@@ -390,11 +457,10 @@ class MyUserInterface extends JFrame implements GameNet_UserInterface, ActionLis
     	{
 			super();
 			
-			this.setLayout(new GridLayout(3, 1));
+			this.setLayout(new GridLayout(4, 1));
 			this.add(dicePanel);
-			
-			// add buttons here
-			
+			this.add(buttonPanel);
+			this.add(gameStatusUpdatePanel);
 			this.add(playerListPanel);
     		// Dice + hold buttons
     		// Submit score/skip turn buttons
@@ -403,15 +469,8 @@ class MyUserInterface extends JFrame implements GameNet_UserInterface, ActionLis
     }
 
     //
-    //
-    //
-    //
     //	Dice Panel classes
     //
-    //
-    //
-    //
-    
     private class DicePanel extends JPanel
     {
     	ArrayList<JLabel> heldLabels = new ArrayList<JLabel>(5);
@@ -475,10 +534,16 @@ class MyUserInterface extends JFrame implements GameNet_UserInterface, ActionLis
     		
     		diceImagePanel.updateImages();
     	}
-    	
+
+    	/**
+    	 * Set the control to a non-interactive state
+    	 * true - If it is this player's turn
+    	 * false - If it is NOT this player's turn
+    	 */
     	public void setEnabled(boolean value)
     	{
-    		// TODO Set all controls nested in this panel to value
+    		for (JCheckBox elem : holdCheckBoxes)
+    			elem.setEnabled(value);
     	}
 
     }
@@ -612,6 +677,48 @@ class MyUserInterface extends JFrame implements GameNet_UserInterface, ActionLis
     			this.add(checkList.get(i), JCheckBox.CENTER);
 		}
     }
+    
+    private class ButtonPanel extends JPanel
+    {
+    	// TODO Add Button listeners
+    	public ButtonPanel()
+    	{
+    		this.setLayout(new GridLayout(1, 2));
+    		submitButton.setToolTipText(
+    			"Submits the scoring play that you have selected");
+    		skipButton.setToolTipText(
+    			"CANNOT BE UNDONE");
+    		
+    		this.add(submitButton);
+    		this.add(skipButton);
+    	}
+    }
+    
+    private class GameStatusUpdatePanel extends JPanel
+    {
+    	JTextArea textArea = new JTextArea();
+    	JScrollPane scrollPane = new JScrollPane(
+    			textArea, 
+    			JScrollPane.VERTICAL_SCROLLBAR_ALWAYS, 
+    			JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED);
+    	
+    	public GameStatusUpdatePanel()
+		{
+    		this.setLayout(new BorderLayout());
+    		
+    		textArea.setLineWrap(true);
+    		textArea.setWrapStyleWord(true);
+    		
+    		this.add(scrollPane, BorderLayout.CENTER);
+		}
+    	
+    	public void addServerOutputText(String text)
+    	{
+    		textArea.append(text +"\n\n");
+    		scrollPane.getVerticalScrollBar().setValue(scrollPane.getVerticalScrollBar().getMaximum());
+    	}
+    }
+    
     
     // Deals with yahtzee bonuses (2 or more yahtzees) 
     // Could be dynamic. If all rolls happened to be yahztees, we could keep adding bonus slots.
