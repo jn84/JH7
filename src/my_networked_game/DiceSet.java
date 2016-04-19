@@ -15,8 +15,8 @@ public class DiceSet implements Serializable
 	
 	public DiceSet()
 	{
-		for (DiceObj dice : diceList)
-			dice = new DiceObj();
+		for (int i = 0; i < 5; i++)
+			diceList.add(new DiceObj());
 		
 		Collections.sort(diceList);
 	}
@@ -33,22 +33,12 @@ public class DiceSet implements Serializable
 	// Read from list of checkboxes in user interface, then pass to this method
 	// We can then send the diceset over myGameOutput
 	// Server will perform the roll,
-	public void setHeld(ArrayList<Boolean> heldList)
+	public void setHeld(int index, boolean value)
 	{
-		// heldList should be size 5
-		if (heldList.size() != 5)
-		{
-			// Debug code
-			System.out.println("DiceSet: setHeld: heldList incorrect size: " + heldList.size());
-			System.out.println("DiceSet: setHeld: should be 5");
-			return;
-		}
-		
-		for (int  i = 0; i < heldList.size(); i++)
-			diceList.get(i).setIsHeld(heldList.get(i));
+		diceList.get(index).setIsHeld(value);
 	}
 	
-	// Pass this return value to the score verifier/parser
+	// XXX DEPRECATED Pass this return value to the score verifier/parser
 	public ArrayList<Integer> getDiceValues()
 	{
 		ArrayList<Integer> diceValues = new ArrayList<Integer>();
@@ -57,6 +47,11 @@ public class DiceSet implements Serializable
 			diceValues.add(new Integer(dice.getValue()));
 		
 		return diceValues;
-		
+	}
+	
+	// Get Dice objects
+	public ArrayList<DiceObj> getDice()
+	{
+		return diceList;
 	}
 }

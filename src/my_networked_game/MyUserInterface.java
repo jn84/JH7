@@ -1,21 +1,9 @@
 package my_networked_game;
 
-import gameNet.GameNet_UserInterface;
-import gameNet.GamePlayer;
-import my_networked_game.HelperClasses.DiceObj;
-import my_networked_game.HelperClasses.ImageCheckBox;
-import my_networked_game.HelperClasses.ImageCheckBoxPanel;
-import my_networked_game.HelperClasses.Player;
-import my_networked_game.HelperClasses.SelectableTextField;
-import my_networked_game.HelperClasses.SelectableTextFieldGroup;
-import my_networked_game.HelperClasses.SelectableTextFieldState;
-import my_networked_game.Enums.ScoreTypes;
-
 import java.awt.BorderLayout;
+import java.awt.Color;
 import java.awt.Component;
 import java.awt.GridLayout;
-import java.awt.Image;
-import java.awt.ImageCapabilities;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.WindowAdapter;
@@ -32,11 +20,16 @@ import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JList;
 import javax.swing.JPanel;
-import javax.swing.ListModel;
 import javax.swing.SwingConstants;
-import javax.swing.border.Border;
-import javax.swing.event.ListDataEvent;
-import javax.swing.event.ListDataListener;
+
+import gameNet.GameNet_UserInterface;
+import gameNet.GamePlayer;
+import my_networked_game.Enums.ScoreTypes;
+import my_networked_game.HelperClasses.DiceObj;
+import my_networked_game.HelperClasses.Player;
+import my_networked_game.HelperClasses.SelectableTextField;
+import my_networked_game.HelperClasses.SelectableTextFieldGroup;
+import my_networked_game.HelperClasses.SelectableTextFieldState;
 
 
 class MyUserInterface extends JFrame implements GameNet_UserInterface, ActionListener
@@ -45,6 +38,16 @@ class MyUserInterface extends JFrame implements GameNet_UserInterface, ActionLis
 	 * 
 	 */
 	private static final long serialVersionUID = -1558976730059939642L;
+	
+	public static ImageIcon  dieDefault_1 = new ImageIcon("Resources\\One.png"),  
+			 				 dieDefault_2 = new ImageIcon("Resources\\Two.png"),  
+			 				 dieDefault_3 = new ImageIcon("Resources\\Three.png"),
+			 				 dieDefault_4 = new ImageIcon("Resources\\Four.png"), 
+			 				 dieDefault_5 = new ImageIcon("Resources\\Five.png"), 
+			 				 dieDefault_6 = new ImageIcon("Resources\\Six.png"),
+			 				 dieBlank 	  = new ImageIcon("Resources\\Blank.png");
+	
+	private DiceSet localDiceSet = new DiceSet();
 
 	private GamePlayer myGamePlayer;
 
@@ -56,10 +59,12 @@ class MyUserInterface extends JFrame implements GameNet_UserInterface, ActionLis
     
     private Player thisPlayer = null;
     
+    private LobbyPanel lobbyPanel = new LobbyPanel();
+    
+    private DicePanel dicePanel = new DicePanel();
+    
     // Should be last
     private MainGamePanel mainGamePanel = new MainGamePanel();
-    
-    private LobbyPanel lobbyPanel = new LobbyPanel();
 
     public MyUserInterface()
     {
@@ -74,8 +79,8 @@ class MyUserInterface extends JFrame implements GameNet_UserInterface, ActionLis
         
         // Boring screen things 
         this.myLayout();
-        //this.add(mainGamePanel, BorderLayout.CENTER);
-        this.add(lobbyPanel, BorderLayout.CENTER);
+        this.add(mainGamePanel, BorderLayout.CENTER);
+        //this.add(lobbyPanel, BorderLayout.CENTER);
     }
     
     public void registerPlayer()
@@ -223,97 +228,15 @@ class MyUserInterface extends JFrame implements GameNet_UserInterface, ActionLis
 		private static final long serialVersionUID = 8419567275250570950L;
 		
 		ScoreCardPanel scoreCardPanel = new ScoreCardPanel();
+		GamePlayPanel gamePlayPanel = new GamePlayPanel(dicePanel);
     	
     	public MainGamePanel()
 		{
     		super();
     		this.setLayout(new GridLayout(0, 2));
-    		this.add(scoreCardPanel);
+    		//this.add(scoreCardPanel);
+    		this.add(gamePlayPanel);
 		}
-    }
-    
-    //
-    //
-    //
-    //
-    //
-    //
-    //
-    //
-    //
-    //		CURRENT TASK:	BUILDING THE RIGHT SIDE PANEL
-    //
-    //
-    //
-    //
-    //
-    //
-    //
-    //
-    //
-    //
-    
-    private class DicePanel extends JPanel
-    {
-    	// Labels (north)
-    	// Images (center)
-    	// Textboxes (south)
-    }
-    
-    private class DiceLabelPanel extends JPanel
-    {
-    	JLabel lblDie_1 = new JLabel("Held", JLabel.CENTER);
-    	JLabel lblDie_2 = new JLabel("Held", JLabel.CENTER);
-    	JLabel lblDie_3 = new JLabel("Held", JLabel.CENTER);
-    	JLabel lblDie_4 = new JLabel("Held", JLabel.CENTER);
-    	JLabel lblDie_5 = new JLabel("Held", JLabel.CENTER);
-    }
-    
-    // TODO If there are issues with dice being held, this might be the culprit
-    private class DiceCheckBoxPanel extends JPanel
-    {
-    	ImageCheckBox die_1 = null,
-    				  die_2 = null,
-    				  die_3 = null,
-    				  die_4 = null,
-    				  die_5 = null;
-    	
-    	DiceSet currentDice = null;
-    	//
-    	//
-    	//
-    	//
-    	//
-    	//
-    	//
-    	//
-    	//
-    	//
-    	//
-    	// WORKING ON THE DICE PANEL
-    	//
-    	//
-    	//
-    	//
-    	//
-    	//
-    	//
-    	//
-    	//
-    	//
-    	public DiceCheckBoxPanel(DiceSet dice)
-    	{
-    		super();
-    		currentDice = null;
-    	}
-    	
-    	public void setDice(DiceSet dice)
-    	{
-    		for (int i = 0; i < 5; i++)
-    		{
-    			die_1.
-    		}
-    	}
     }
     
     private class ScoreCardPanel extends JPanel
@@ -463,17 +386,231 @@ class MyUserInterface extends JFrame implements GameNet_UserInterface, ActionLis
 		 */
 		private static final long serialVersionUID = -6209420231584759845L;
 
-		public GamePlayPanel()
+		public GamePlayPanel(DicePanel dp)
     	{
+			super();
+			
+			this.setLayout(new GridLayout(3, 1));
+			this.add(dicePanel);
+			
+			// add buttons here
+			
+			this.add(playerListPanel);
     		// Dice + hold buttons
     		// Submit score/skip turn buttons
     		// Players with scores
     	}
     }
+
+    //
+    //
+    //
+    //
+    //	Dice Panel classes
+    //
+    //
+    //
+    //
     
-    private class DicePanel
+    private class DicePanel extends JPanel
     {
+    	ArrayList<JLabel> heldLabels = new ArrayList<JLabel>(5);
     	
+    	ArrayList<JCheckBox> holdCheckBoxes = new ArrayList<JCheckBox>(5);
+    	
+    	DiceLabelPanel diceLabelPanel = null;
+    	
+    	DiceImagePanel diceImagePanel = null;
+    	
+    	DiceCheckBoxPanel diceCheckBoxPanel = null;
+
+    	public DicePanel()
+    	{
+    		this.setLayout(new BorderLayout());
+    		
+    		for (int i = 0; i < 5; i++)
+    		{
+    			heldLabels.add(new JLabel("Held", JLabel.CENTER));
+    			heldLabels.get(i).setVisible(false);
+    			holdCheckBoxes.add(new JCheckBox(""));
+    		}
+    		
+    		diceLabelPanel = new DiceLabelPanel(heldLabels);
+    		diceImagePanel = new DiceImagePanel();
+    		diceCheckBoxPanel = new DiceCheckBoxPanel(holdCheckBoxes);
+    		
+    		this.add(diceLabelPanel, BorderLayout.NORTH);
+    		this.add(diceImagePanel, BorderLayout.CENTER);
+    		this.add(diceCheckBoxPanel, BorderLayout.SOUTH);
+    		
+    		for (JCheckBox elem : holdCheckBoxes)
+    		{
+    			elem.addActionListener(new ActionListener()
+				{
+					
+					@Override
+					public void actionPerformed(ActionEvent e)
+					{
+						JCheckBox obj = (JCheckBox) e.getSource();
+						int index = holdCheckBoxes.indexOf(obj);
+
+						diceImagePanel.setSelected(index, obj.isSelected());
+						heldLabels.get(index).setVisible(obj.isSelected());
+						
+						localDiceSet.setHeld(index, obj.isSelected());
+					}
+				});
+    		}
+    	}
+    	
+    	public void updateDice()
+    	{
+    		// localDiceSet should have been changed
+    		
+    		for (int index = 0; index < 5; index++)
+    		{
+				diceImagePanel.setSelected(index, false);
+				heldLabels.get(index).setVisible(false);
+    		}
+    		
+    		diceImagePanel.updateImages();
+    	}
+    	
+    	public void setEnabled(boolean value)
+    	{
+    		// TODO Set all controls nested in this panel to value
+    	}
+
+    }
+    
+    private class DiceLabelPanel extends JPanel
+    {
+    	/**
+		 * 
+		 */
+		private static final long serialVersionUID = -621269843615348679L;
+
+		public DiceLabelPanel(ArrayList<JLabel> labels)
+		{
+    		super();
+    		this.setLayout(new GridLayout(1, 5));
+    		for (JLabel elem : labels)
+    		{
+    			this.add(elem);
+    			elem.setVisible(false);
+    		}
+		}
+    }
+    
+    // TODO If there are issues with dice being held, this might be the culprit
+    private class DiceImagePanel extends JPanel
+    {
+    	/**
+		 * 
+		 */
+		private static final long serialVersionUID = 4284742933260010417L;
+		
+		ArrayList<DiceObjPanel> diceObjPanelList = new ArrayList<DiceObjPanel>(5);
+    	
+    	public DiceImagePanel()
+    	{
+    		this.setLayout(new GridLayout(1, 5));
+    		
+    		for (int i = 0; i < localDiceSet.getDice().size(); i++)
+    			diceObjPanelList.add(new DiceObjPanel(localDiceSet.getDice().get(i).getValue()));
+    		
+    		for (int i = 0; i < diceObjPanelList.size(); i++)
+    			this.add(diceObjPanelList.get(i));
+    	}
+    	
+    	public void setSelected(int index, boolean value)
+    	{
+    		diceObjPanelList.get(index).setSelected(value);
+    	}
+    	
+    	public void updateImages()
+    	{
+    		for (int i = 0; i < 5; i++)
+    		{
+    			diceObjPanelList.get(i).updateImage(localDiceSet.getDice().get(i).getValue());
+    		}
+    			
+    	}
+    }
+    
+    private class DiceObjPanel extends JPanel
+    {
+    	/**
+		 * 
+		 */
+		private static final long serialVersionUID = -2604477054890798598L;
+		JLabel imageLabel = null;
+    	
+    	public DiceObjPanel(int dieValue)
+    	{
+    		this.setLayout(new BorderLayout());
+    		
+    		imageLabel = new JLabel(getImage(dieValue));
+    		this.add(imageLabel, BorderLayout.CENTER);
+    	}
+    	
+    	public void updateImage(int dieValue)
+    	{
+    		imageLabel.setIcon(getImage(dieValue));
+    		repaint();
+    	}
+    	
+    	public ImageIcon getImage(int dieValue)
+    	{
+    		switch (dieValue)
+    		{
+    		case 1:
+    			return dieDefault_1;
+    		case 2:
+    			return dieDefault_2;
+    		case 3:
+    			return dieDefault_3;
+    		case 4:
+    			return dieDefault_4;
+    		case 5:
+    			return dieDefault_5;
+    		case 6:
+    			return dieDefault_6;
+    		default:
+    			return dieBlank;
+    		}
+    	}
+    	
+    	public void setSelected(boolean value)
+    	{
+    		System.out.println("Setting die background");
+    		if (value)
+    		{
+    			this.setBackground(Color.RED);
+    			repaint();
+    		}
+    		else
+    		{
+    			this.setBackground(null);
+    			repaint();
+    		}
+    	}
+    }
+    
+    private class DiceCheckBoxPanel extends JPanel
+    {
+    	/**
+		 * 
+		 */
+		private static final long serialVersionUID = 6072981989061414353L;
+
+		public DiceCheckBoxPanel(ArrayList<JCheckBox> checkList)
+		{
+    		super();
+    		this.setLayout(new GridLayout(1, 5));
+    		for (int i = checkList.size() - 1; i >= 0; i--)
+    			this.add(checkList.get(i), JCheckBox.CENTER);
+		}
     }
     
     // Deals with yahtzee bonuses (2 or more yahtzees) 
@@ -494,6 +631,7 @@ class MyUserInterface extends JFrame implements GameNet_UserInterface, ActionLis
     	
     	public JahtzeeBonusPanel(SelectableTextField first, SelectableTextField second, SelectableTextField third)
 		{
+    		super();
     		firstBonus = first;
     		secondBonus = second;
     		thirdBonus = third;
