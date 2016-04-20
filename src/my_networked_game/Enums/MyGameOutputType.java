@@ -6,5 +6,6 @@ public enum MyGameOutputType
 	PLAYER_UNREGISTERED,
 	GAME_BEGIN,
 	MAIN_GAME,
+	GAME_OVER, // all players disabled.
 	SEND_ID;
 }

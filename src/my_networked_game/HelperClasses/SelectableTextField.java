@@ -31,7 +31,7 @@ public class SelectableTextField extends JTextField
 	
 	private void update()
 	{
-		if (state.isSelectable)
+		if (state.isSelectable && !state.isUsed)
 		{
 			if (state.isSelected)
 			{

@@ -6,6 +6,8 @@ import java.awt.Component;
 import java.awt.GridLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.MouseEvent;
+import java.awt.event.MouseListener;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.util.ArrayList;
@@ -19,6 +21,7 @@ import javax.swing.JCheckBox;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JList;
+import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTextArea;
@@ -26,6 +29,7 @@ import javax.swing.SwingConstants;
 
 import gameNet.GameNet_UserInterface;
 import gameNet.GamePlayer;
+import my_networked_game.Enums.MyGameInputType;
 import my_networked_game.Enums.ScoreTypes;
 import my_networked_game.HelperClasses.Player;
 import my_networked_game.HelperClasses.SelectableTextField;
@@ -48,6 +52,8 @@ class MyUserInterface extends JFrame implements GameNet_UserInterface, ActionLis
 			 				 dieDefault_6 = new ImageIcon("Resources\\Six.png"),
 			 				 dieBlank 	  = new ImageIcon("Resources\\Blank.png");
 	
+	private boolean isMyTurn = false;
+	
 	private DiceSet localDiceSet = new DiceSet();
 
 	private GamePlayer myGamePlayer;
@@ -65,6 +71,7 @@ class MyUserInterface extends JFrame implements GameNet_UserInterface, ActionLis
     private DicePanel dicePanel = new DicePanel();
     
     private JButton submitButton = new JButton("Submit Score"),
+    				rollButton 	 = new JButton("Roll Dice"),
     				skipButton   = new JButton("Skip Turn");
     
     private ButtonPanel buttonPanel = new ButtonPanel();
@@ -87,8 +94,8 @@ class MyUserInterface extends JFrame implements GameNet_UserInterface, ActionLis
         
         // Boring screen things 
         this.myLayout();
-        this.add(mainGamePanel, BorderLayout.CENTER);
-        //this.add(lobbyPanel, BorderLayout.CENTER);
+        //this.add(mainGamePanel, BorderLayout.CENTER);
+        this.add(lobbyPanel, BorderLayout.CENTER);
         
         submitButton.addActionListener(new ActionListener()
 		{
@@ -97,6 +104,16 @@ class MyUserInterface extends JFrame implements GameNet_UserInterface, ActionLis
 			public void actionPerformed(ActionEvent e)
 			{
 				submitClick();
+			}
+		});
+        
+        rollButton.addActionListener(new ActionListener()
+		{
+			
+			@Override
+			public void actionPerformed(ActionEvent e)
+			{
+				rollClick();
 			}
 		});
         
@@ -110,32 +127,21 @@ class MyUserInterface extends JFrame implements GameNet_UserInterface, ActionLis
 			}
 		});
     }
-    //
-    //
-    //
-    //
-    //
-    //
-    //
-    //
-    //
-    //
-    //
-    //
-    //	Working on buttons.
-    //	Added methods for button clicks.
-    //	Worked on server output -- seems to work when added after everything is made.
-    //	
-    //
-    //
-    //
-    //
-    //
-    //
-    //
-    //
-    //
-    //
+
+    /**
+     * Disables or enables the various control in the user interface
+     * Used to control which player's turn it is.
+     * 
+     * @param value
+     * True to enable, false to disable
+     */
+    public void setUserInterfaceInteractable()
+    {
+    	submitButton.setEnabled(isMyTurn);
+    	skipButton.setEnabled(isMyTurn);
+    	rollButton.setEnabled(isMyTurn);
+    	dicePanel.setEnabled(isMyTurn);
+    }
     
     public void submitClick()
     {
@@ -145,8 +151,28 @@ class MyUserInterface extends JFrame implements GameNet_UserInterface, ActionLis
     
     public void skipClick()
     {
+    	int confirmResult = JOptionPane.showConfirmDialog(
+    							this, 
+    							"You have chosen to skip your turn.\nIf you do this, you will have to cross out one of your score boxes.\nAre you sure you want to skip?", 
+    							"Confirm Skip Turn", 
+    							JOptionPane.YES_NO_OPTION);
+    	if (confirmResult != JOptionPane.YES_OPTION)
+    	{
+    		System.out.println("Skip aborted");
+    		return;
+    	}
+    	else
+    		System.out.println("Turn skipped");
+    	
+    	
+    	
     	// TODO Define what happens when the skip button is clicked.
 		gameStatusUpdatePanel.addServerOutputText("SKIP CLICK!");
+    }
+    
+    public void rollClick()
+    {
+    	// when we roll, we want to make sure everything in the score sheet is unselected
     }
     
     public void registerPlayer()
@@ -169,14 +195,29 @@ class MyUserInterface extends JFrame implements GameNet_UserInterface, ActionLis
     		playerListPanel.removePlayer(myGameOutput.getActivePlayer());
     		break;
     	case GAME_BEGIN:
-    		//TODO
-    		// Switch to MainGamePanel
-    		// also should get first player package (dice and scoresheets)
+    		this.remove(lobbyPanel);
+    		this.add(mainGamePanel);
+    		// TODO also should get first player package (dice and scoresheets)
     		break;
 		default:
 			break;
     		
     	}
+    }
+    
+    public void generateInput(MyGameInputType type)
+    {
+    	myGameInput = new MyGameInput(type);
+    	
+    	switch (type)
+    	{
+    	case BEGIN_GAME:
+    		break;
+    	default:
+    		break;
+    	}
+    	
+    	myGamePlayer.sendMessage(myGameInput);
     }
     
     public void actionPerformed(ActionEvent e) 
@@ -200,9 +241,7 @@ class MyUserInterface extends JFrame implements GameNet_UserInterface, ActionLis
     
     private void updateSelectableTextFields(SelectableTextFieldState[] st)
     {
-    	// Set the i'th field's state to the i'th st's state 
-    	for (int i = 0; i < st.length; i++)
-    		selectableTextFields.getField(ScoreTypes.values()[i]).setState(st[i]);
+    	selectableTextFields.setStates(st);
     }
     
     // Inner Class
@@ -224,6 +263,16 @@ class MyUserInterface extends JFrame implements GameNet_UserInterface, ActionLis
     		this.setLayout(new BorderLayout());
     		this.add(playerListPanel, BorderLayout.CENTER);
     		this.add(btnStartGame, BorderLayout.SOUTH);
+    		// TODO If Time: Make disabled for everyone except host
+    		
+    		btnStartGame.addActionListener(new ActionListener()
+			{
+				@Override
+				public void actionPerformed(ActionEvent e)
+				{
+					MyUserInterface.this.buildInput(MyGameInputType.BEGIN_GAME);
+				}
+			});
     	}
     }
     
@@ -436,7 +485,7 @@ class MyUserInterface extends JFrame implements GameNet_UserInterface, ActionLis
     		this.add(lblGrandTotal);
     		this.add(txtGrandTotal);
     		
-    		// Debug
+    		// XXX Debug selectable text field
     		for (SelectableTextField field : selectableTextFields)
     		{
     			field.setState(new SelectableTextFieldState("///////////////////////////////", false, true));
@@ -462,9 +511,6 @@ class MyUserInterface extends JFrame implements GameNet_UserInterface, ActionLis
 			this.add(buttonPanel);
 			this.add(gameStatusUpdatePanel);
 			this.add(playerListPanel);
-    		// Dice + hold buttons
-    		// Submit score/skip turn buttons
-    		// Players with scores
     	}
     }
 
@@ -491,7 +537,7 @@ class MyUserInterface extends JFrame implements GameNet_UserInterface, ActionLis
     		{
     			heldLabels.add(new JLabel("Held", JLabel.CENTER));
     			heldLabels.get(i).setVisible(false);
-    			holdCheckBoxes.add(new JCheckBox(""));
+    			holdCheckBoxes.add(new JCheckBox("Hold"));
     		}
     		
     		diceLabelPanel = new DiceLabelPanel(heldLabels);
@@ -586,6 +632,7 @@ class MyUserInterface extends JFrame implements GameNet_UserInterface, ActionLis
     		
     		for (int i = 0; i < diceObjPanelList.size(); i++)
     			this.add(diceObjPanelList.get(i));
+    		
     	}
     	
     	public void setSelected(int index, boolean value)
@@ -603,6 +650,8 @@ class MyUserInterface extends JFrame implements GameNet_UserInterface, ActionLis
     	}
     }
     
+    
+    // TODO Maybe make the images clickable if there's time.
     private class DiceObjPanel extends JPanel
     {
     	/**
@@ -680,15 +729,22 @@ class MyUserInterface extends JFrame implements GameNet_UserInterface, ActionLis
     
     private class ButtonPanel extends JPanel
     {
-    	// TODO Add Button listeners
+    	/**
+		 * 
+		 */
+		private static final long serialVersionUID = 2084941331920044377L;
+
     	public ButtonPanel()
     	{
-    		this.setLayout(new GridLayout(1, 2));
+    		this.setLayout(new GridLayout(1, 3));
     		submitButton.setToolTipText(
-    			"Submits the scoring play that you have selected");
+    			"Click to submit the scoring play that you have selected");
+    		rollButton.setToolTipText(
+    			"Click to to roll any unheld die");
     		skipButton.setToolTipText(
     			"CANNOT BE UNDONE");
     		
+    		this.add(rollButton);
     		this.add(submitButton);
     		this.add(skipButton);
     	}
@@ -696,7 +752,11 @@ class MyUserInterface extends JFrame implements GameNet_UserInterface, ActionLis
     
     private class GameStatusUpdatePanel extends JPanel
     {
-    	JTextArea textArea = new JTextArea();
+    	/**
+		 * 
+		 */
+		private static final long serialVersionUID = -6187609582103465670L;
+		JTextArea textArea = new JTextArea();
     	JScrollPane scrollPane = new JScrollPane(
     			textArea, 
     			JScrollPane.VERTICAL_SCROLLBAR_ALWAYS, 

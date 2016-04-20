@@ -19,8 +19,6 @@ public class MyGame extends GameNet_CoreGame implements Serializable
 	
 	private Player currentPlayer = null;
 	
-	
-	
 	private int roundCounter = 0;
 	
 	private boolean isGameEnded = false;
@@ -74,8 +72,37 @@ public class MyGame extends GameNet_CoreGame implements Serializable
         case GENERATE_NEW_TURN:
         	myGameOutput = generateNewTurn();
         	break;
-        case MAKE_PLAY:
-       
+        	
+        case GAME_BEGIN:
+        	// TODO XXX klgdjlksdjgsdg
+        	currentPlayer = playerList.get(0);
+        	break;
+        	
+        case PLAYER_ROLL:
+        	// roll the unheld dice
+        	// process valid scoring plays
+        	// apply the valid scoring plays to the player's score sheet
+        	// build the output object
+        	break;
+        	
+        case PLAYER_SUBMIT:
+        	// commit the selected score to the player's scoresheet
+        	// set the SELECTED VALUE isUsed = true
+        	// go to the next player: currentPlayer = nextPlayer()
+        	// generate a new set of dice
+        	// process the valid scoring plays against currentPlayer's score sheet
+        	// build the output object
+        	// if (isGameEnded == true)
+        	//		MyGameOutputType.GAME_OVER
+        	// else
+        	//		MyGameOutputType.MAIN_GAME
+        	break;
+        	
+        case PLAYER_SKIP:
+        	// player skipped
+        	// Need to generate output to so that the player can select a field to skip
+        	break;
+
 		default:
 			// TODO leave this for whatever is left over
 			break; 	

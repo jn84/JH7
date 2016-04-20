@@ -3,7 +3,10 @@ package my_networked_game.Enums;
 public enum MyGameInputType
 {
 	REGISTER_PLAYER,
-	UNREGISTER_PLAYER, // if the connection to this player closes
-	GENERATE_NEW_TURN,
-	MAKE_PLAY
+	UNREGISTER_PLAYER,
+	GENERATE_NEW_TURN, // for use with a player leaving the game
+	GAME_BEGIN,
+	PLAYER_SKIP,
+	PLAYER_SUBMIT,
+	PLAYER_ROLL
 }
