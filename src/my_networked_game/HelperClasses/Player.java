@@ -1,6 +1,7 @@
 package my_networked_game.HelperClasses;
 
 import java.io.Serializable;
+import java.util.ArrayList;
 
 import my_networked_game.Enums.ScoreTypes;
 
@@ -13,7 +14,7 @@ public class Player implements Serializable, Comparable<Player>
 	 */
 	private static final long serialVersionUID = -5653482748891502216L;
 	
-	SelectableTextFieldState[] scoreData = new SelectableTextFieldState[ScoreTypes.values().length];
+	ArrayList<SelectableTextFieldState> scoreData = new ArrayList<SelectableTextFieldState>(ScoreTypes.values().length);
 	
 	String playerName = "",
 		   playerID = "";

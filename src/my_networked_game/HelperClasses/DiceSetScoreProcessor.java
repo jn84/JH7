@@ -1,11 +1,7 @@
 package my_networked_game.HelperClasses;
 
-import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.stream.IntStream;
-
-import org.omg.CORBA.PUBLIC_MEMBER;
 
 import my_networked_game.DiceSet;
 import my_networked_game.Enums.ScoreTypes;
@@ -54,7 +50,7 @@ public class DiceSetScoreProcessor
 
 		//KIND_3(9),            
 		type = ScoreTypes.KIND_3;
-		if (!player.scoreData[type.ordinal()].isUsed)
+		if (!player.scoreData.get(type.ordinal()).isUsed)
 		{
 			if (isTurnSkip)
 				states.set(type.ordinal(), new SelectableTextFieldState(CROSS_OUT_TEXT, false, true, false));
@@ -67,12 +63,12 @@ public class DiceSetScoreProcessor
 			}
 		}
 		else
-			states.set(type.ordinal(), player.scoreData[type.ordinal()]);
+			states.set(type.ordinal(), player.scoreData.get(type.ordinal()));
 
 
 		//KIND_4(10),      
 		type = ScoreTypes.KIND_4;
-		if (!player.scoreData[type.ordinal()].isUsed)
+		if (!player.scoreData.get(type.ordinal()).isUsed)
 		{
 			if (isTurnSkip)
 				states.set(type.ordinal(), new SelectableTextFieldState(CROSS_OUT_TEXT, false, true, false));
@@ -85,12 +81,12 @@ public class DiceSetScoreProcessor
 			}
 		}
 		else
-			states.set(type.ordinal(), player.scoreData[type.ordinal()]);
+			states.set(type.ordinal(), player.scoreData.get(type.ordinal()));
 
 
 		//FULL_HOUSE(11),        
 		type = ScoreTypes.FULL_HOUSE;
-		if (!player.scoreData[type.ordinal()].isUsed)
+		if (!player.scoreData.get(type.ordinal()).isUsed)
 		{
 			if (isTurnSkip)
 				states.set(type.ordinal(), new SelectableTextFieldState(CROSS_OUT_TEXT, false, true, false));
@@ -103,12 +99,12 @@ public class DiceSetScoreProcessor
 			}
 		}
 		else
-			states.set(type.ordinal(), player.scoreData[type.ordinal()]);
+			states.set(type.ordinal(), player.scoreData.get(type.ordinal()));
 
 
 		//SMALL_STRAIGHT(12),        
 		type = ScoreTypes.SMALL_STRAIGHT;
-		if (!player.scoreData[type.ordinal()].isUsed)
+		if (!player.scoreData.get(type.ordinal()).isUsed)
 		{
 			ArrayList<Integer> list = removeDuplicates(diceValues);
 
@@ -120,11 +116,11 @@ public class DiceSetScoreProcessor
 				states.set(type.ordinal(), new SelectableTextFieldState("", false, false, false));
 		}
 		else
-			states.set(type.ordinal(), player.scoreData[type.ordinal()]);
+			states.set(type.ordinal(), player.scoreData.get(type.ordinal()));
 
 		//LARGE_STRAIGHT(13),
 		type = ScoreTypes.LARGE_STRAIGHT;
-		if (!player.scoreData[type.ordinal()].isUsed)
+		if (!player.scoreData.get(type.ordinal()).isUsed)
 		{
 			ArrayList<Integer> list = removeDuplicates(diceValues);
 
@@ -136,11 +132,11 @@ public class DiceSetScoreProcessor
 				states.set(type.ordinal(), new SelectableTextFieldState("", false, false, false));
 		}
 		else
-			states.set(type.ordinal(), player.scoreData[type.ordinal()]);
+			states.set(type.ordinal(), player.scoreData.get(type.ordinal()));
 
 		//CHANCE(15),            
 		type = ScoreTypes.CHANCE;
-		if (!player.scoreData[type.ordinal()].isUsed)
+		if (!player.scoreData.get(type.ordinal()).isUsed)
 		{
 			if (isTurnSkip)
 				states.set(type.ordinal(), new SelectableTextFieldState(CROSS_OUT_TEXT, false, true, false));
@@ -148,13 +144,13 @@ public class DiceSetScoreProcessor
 				states.set(type.ordinal(), new SelectableTextFieldState(Integer.toString(sum), false, true, false));					
 		}
 		else
-			states.set(type.ordinal(), player.scoreData[type.ordinal()]);
+			states.set(type.ordinal(), player.scoreData.get(type.ordinal()));
 
 
 		//JAHTZEE(14), 
 		type = ScoreTypes.JAHTZEE;
 		// If Jahtzee not used
-		if (!player.scoreData[type.ordinal()].isUsed)
+		if (!player.scoreData.get(type.ordinal()).isUsed)
 		{
 			// If skip mode, apply skip state
 			if (isTurnSkip)
@@ -175,7 +171,7 @@ public class DiceSetScoreProcessor
 		{
 			// Check if Jahtzee was scored or crossed out and make sure we're not in cross out mode
 			// No crossing out Jahtzee bonuses
-			if (player.scoreData[type.ordinal()].fieldValue.equals("50") && !isTurnSkip)
+			if (player.scoreData.get(type.ordinal()).fieldValue.equals("50") && !isTurnSkip)
 			{
 				
 				// Jahtzee was scored, not crossed out
@@ -184,83 +180,55 @@ public class DiceSetScoreProcessor
 				{
 					
 					// Is Jahtzee, see if first bonus is used. If not, allow selection and copy old values over
-					if (!player.scoreData[ScoreTypes.JAHTZEE_BONUS_1.ordinal()].isUsed)
+					if (!player.scoreData.get(ScoreTypes.JAHTZEE_BONUS_1.ordinal()).isUsed)
 					{
 						states.set(ScoreTypes.JAHTZEE_BONUS_1.ordinal(), new SelectableTextFieldState("X", false, true, false));
-						states.set(ScoreTypes.JAHTZEE_BONUS_1.ordinal(), player.scoreData[ScoreTypes.JAHTZEE_BONUS_2.ordinal()]);
-						states.set(ScoreTypes.JAHTZEE_BONUS_1.ordinal(), player.scoreData[ScoreTypes.JAHTZEE_BONUS_3.ordinal()]);
+						states.set(ScoreTypes.JAHTZEE_BONUS_1.ordinal(), player.scoreData.get(ScoreTypes.JAHTZEE_BONUS_2.ordinal()));
+						states.set(ScoreTypes.JAHTZEE_BONUS_1.ordinal(), player.scoreData.get(ScoreTypes.JAHTZEE_BONUS_3.ordinal()));
 					}
 
 					// First bonus used, see if second bonus is used. If not, allow selection and copy old values over 
-					else if (!player.scoreData[ScoreTypes.JAHTZEE_BONUS_2.ordinal()].isUsed)
+					else if (!player.scoreData.get(ScoreTypes.JAHTZEE_BONUS_2.ordinal()).isUsed)
 					{
 						states.set(ScoreTypes.JAHTZEE_BONUS_2.ordinal(), new SelectableTextFieldState("X", false, true, false));
-						states.set(ScoreTypes.JAHTZEE_BONUS_1.ordinal(), player.scoreData[ScoreTypes.JAHTZEE_BONUS_2.ordinal()]);
-						states.set(ScoreTypes.JAHTZEE_BONUS_3.ordinal(), player.scoreData[ScoreTypes.JAHTZEE_BONUS_3.ordinal()]);
+						states.set(ScoreTypes.JAHTZEE_BONUS_1.ordinal(), player.scoreData.get(ScoreTypes.JAHTZEE_BONUS_2.ordinal()));
+						states.set(ScoreTypes.JAHTZEE_BONUS_3.ordinal(), player.scoreData.get(ScoreTypes.JAHTZEE_BONUS_3.ordinal()));
 					}
 					
 					// Second bonus used, see if third bonus is used. If not, allow selection and copy old values over					
-					else if (!player.scoreData[ScoreTypes.JAHTZEE_BONUS_3.ordinal()].isUsed)
+					else if (!player.scoreData.get(ScoreTypes.JAHTZEE_BONUS_3.ordinal()).isUsed)
 					{
 						states.set(ScoreTypes.JAHTZEE_BONUS_3.ordinal(), new SelectableTextFieldState("X", false, true, false));
-						states.set(ScoreTypes.JAHTZEE_BONUS_1.ordinal(), player.scoreData[ScoreTypes.JAHTZEE_BONUS_2.ordinal()]);
-						states.set(ScoreTypes.JAHTZEE_BONUS_2.ordinal(), player.scoreData[ScoreTypes.JAHTZEE_BONUS_3.ordinal()]);
+						states.set(ScoreTypes.JAHTZEE_BONUS_1.ordinal(), player.scoreData.get(ScoreTypes.JAHTZEE_BONUS_2.ordinal()));
+						states.set(ScoreTypes.JAHTZEE_BONUS_2.ordinal(), player.scoreData.get(ScoreTypes.JAHTZEE_BONUS_3.ordinal()));
 					}
 					
 					// All bonuses used, copy all old values over to new array
 					else
 					{
-						states.set(ScoreTypes.JAHTZEE_BONUS_1.ordinal(), player.scoreData[ScoreTypes.JAHTZEE_BONUS_1.ordinal()]);
-						states.set(ScoreTypes.JAHTZEE_BONUS_2.ordinal(), player.scoreData[ScoreTypes.JAHTZEE_BONUS_2.ordinal()]);
-						states.set(ScoreTypes.JAHTZEE_BONUS_3.ordinal(), player.scoreData[ScoreTypes.JAHTZEE_BONUS_3.ordinal()]);
+						states.set(ScoreTypes.JAHTZEE_BONUS_1.ordinal(), player.scoreData.get(ScoreTypes.JAHTZEE_BONUS_1.ordinal()));
+						states.set(ScoreTypes.JAHTZEE_BONUS_2.ordinal(), player.scoreData.get(ScoreTypes.JAHTZEE_BONUS_2.ordinal()));
+						states.set(ScoreTypes.JAHTZEE_BONUS_3.ordinal(), player.scoreData.get(ScoreTypes.JAHTZEE_BONUS_3.ordinal()));
 					}
 				}
 				
 				// Not a Jahtzee. Copy old values over.
 				else
 				{
-					states.set(ScoreTypes.JAHTZEE_BONUS_1.ordinal(), player.scoreData[ScoreTypes.JAHTZEE_BONUS_1.ordinal()]);
-					states.set(ScoreTypes.JAHTZEE_BONUS_2.ordinal(), player.scoreData[ScoreTypes.JAHTZEE_BONUS_2.ordinal()]);
-					states.set(ScoreTypes.JAHTZEE_BONUS_3.ordinal(), player.scoreData[ScoreTypes.JAHTZEE_BONUS_3.ordinal()]);
+					states.set(ScoreTypes.JAHTZEE_BONUS_1.ordinal(), player.scoreData.get(ScoreTypes.JAHTZEE_BONUS_1.ordinal()));
+					states.set(ScoreTypes.JAHTZEE_BONUS_2.ordinal(), player.scoreData.get(ScoreTypes.JAHTZEE_BONUS_2.ordinal()));
+					states.set(ScoreTypes.JAHTZEE_BONUS_3.ordinal(), player.scoreData.get(ScoreTypes.JAHTZEE_BONUS_3.ordinal()));
 				}
 			}
 			
 			// Jahtzee was crossed out. Can't use bonuses. Copy old values over.
 			else
 			{
-				states.set(ScoreTypes.JAHTZEE_BONUS_1.ordinal(), player.scoreData[ScoreTypes.JAHTZEE_BONUS_1.ordinal()]);
-				states.set(ScoreTypes.JAHTZEE_BONUS_2.ordinal(), player.scoreData[ScoreTypes.JAHTZEE_BONUS_2.ordinal()]);
-				states.set(ScoreTypes.JAHTZEE_BONUS_3.ordinal(), player.scoreData[ScoreTypes.JAHTZEE_BONUS_3.ordinal()]);
+				states.set(ScoreTypes.JAHTZEE_BONUS_1.ordinal(), player.scoreData.get(ScoreTypes.JAHTZEE_BONUS_1.ordinal()));
+				states.set(ScoreTypes.JAHTZEE_BONUS_2.ordinal(), player.scoreData.get(ScoreTypes.JAHTZEE_BONUS_2.ordinal()));
+				states.set(ScoreTypes.JAHTZEE_BONUS_3.ordinal(), player.scoreData.get(ScoreTypes.JAHTZEE_BONUS_3.ordinal()));
 			}
 		}
-		
-		//UPPER_SUB_TOTAL(6),     
-
-
-
-		//UPPER_BONUS(7),        
-
-
-
-		//UPPER_GRAND_TOTAL(8),   
-
-
-
-		//JAHTZEE_BONUS_TOTAL(19), 
-
-
-
-		//FINAL_UPPER_GRAND_TOTAL(20),
-
-
-
-		//FINAL_LOWER_GRAND_TOTAL(21),   
-
-
-
-		//FINAL_GRAND_TOTAL(22);
-
-
 		return states;
 	}
 
@@ -268,7 +236,7 @@ public class DiceSetScoreProcessor
 	
 	public static SelectableTextFieldState processSingleValue(ScoreTypes type, Player player, boolean isSkip, ArrayList<Integer> diceValues)
 	{
-		if (!player.scoreData[type.ordinal()].isUsed)
+		if (!player.scoreData.get(type.ordinal()).isUsed)
 		{
 			if (isSkip)
 				return new SelectableTextFieldState(CROSS_OUT_TEXT, false, true, false);
@@ -285,7 +253,7 @@ public class DiceSetScoreProcessor
 			}
 		}
 		else // Preserve the original data
-			return player.scoreData[ScoreTypes.ACES.ordinal()];
+			return player.scoreData.get(ScoreTypes.ACES.ordinal());
 	}
 
 	public static int sumIntArrayList(ArrayList<Integer> list)

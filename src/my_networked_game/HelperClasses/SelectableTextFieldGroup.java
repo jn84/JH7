@@ -25,16 +25,16 @@ public class SelectableTextFieldGroup extends MouseAdapter implements Iterable<S
 			sstfList.add(new SelectableTextField(new SelectableTextFieldState()));
 			sstfList.get(i).addMouseListener
 			(
-					new MouseAdapter()
+				new MouseAdapter()
+				{
+					@Override
+					public void mouseClicked(MouseEvent e)
 					{
-						@Override
-						public void mouseClicked(MouseEvent e)
-						{
-							super.mouseClicked(e);
-							processClick(e);
-						}
+						super.mouseClicked(e);
+						processClick(e);
 					}
-					);
+				}
+			);
 		}
 	}
 
@@ -97,7 +97,7 @@ public class SelectableTextFieldGroup extends MouseAdapter implements Iterable<S
 		return states;
 	}
 	
-	public void setStates(SelectableTextFieldState[] states)
+	public void setStates(ArrayList<SelectableTextFieldState> states)
 	{
 		if (states == null)
 		{
@@ -105,14 +105,14 @@ public class SelectableTextFieldGroup extends MouseAdapter implements Iterable<S
 			return;
 		}
 		
-		if (states.length != sstfList.size())
+		if (states.size() != sstfList.size())
 		{
 			System.out.println("SelectableTextFieldGroup.setStates: size of states array is invalid");
 			return;
 		}
 		
-		for (int i = 0; i < states.length; i++)
-			sstfList.get(i).setState(states[i]);
+		for (int i = 0; i < states.size(); i++)
+			sstfList.get(i).setState(states.get(i));
 		triggerSelectableTextFieldEvent(new SelectableTextFieldEvent(this, false));
 	}
 
