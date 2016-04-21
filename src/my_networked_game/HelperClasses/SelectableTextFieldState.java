@@ -18,6 +18,17 @@ public class SelectableTextFieldState
 	public SelectableTextFieldState() {}
 	
 	
+	/**
+	 * Copy constructor
+	 */
+	public SelectableTextFieldState(SelectableTextFieldState state)
+	{
+		this.fieldValue = state.fieldValue;
+		this.isSelected = state.isSelected;
+		this.isSelectable = state.isSelectable;
+		this.isUsed = state.isUsed;
+	}
+	
 	public SelectableTextFieldState(String value, boolean selected, boolean selectable, boolean used)
 	{
 		fieldValue = value;

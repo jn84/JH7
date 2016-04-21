@@ -14,7 +14,7 @@ public class Player implements Serializable, Comparable<Player>
 	 */
 	private static final long serialVersionUID = -5653482748891502216L;
 	
-	ArrayList<SelectableTextFieldState> scoreData = new ArrayList<SelectableTextFieldState>(ScoreTypes.values().length);
+	ArrayList<SelectableTextFieldState> scoreData = null;
 	
 	String playerName = "",
 		   playerID = "";
@@ -26,6 +26,29 @@ public class Player implements Serializable, Comparable<Player>
 		playerName = name;
 		playerID = ID;
 		playerScore = score;
+		
+		scoreData = ScoreSheetBuilder.getNewPlayerScoreSheet();
+	}
+	
+	/**
+	 * Copy constructor
+	 * @param p
+	 * Player object to copy
+	 */
+	public Player(Player p)
+	{
+		scoreData = new ArrayList<SelectableTextFieldState>(ScoreTypes.values().length);
+		
+		
+		// this assumes going from first to last element. will it?
+		for (SelectableTextFieldState state : p.scoreData)
+			scoreData.add(new SelectableTextFieldState(state));
+		
+		scoreData = p.scoreData;
+		
+		playerID = p.playerID;
+		playerName = p.playerName;
+		playerScore = p.playerScore;
 	}
 	
 	public String getName()

@@ -3,11 +3,14 @@ package my_networked_game;
 import java.io.Serializable;
 import java.util.ArrayList;
 
+import javax.xml.transform.Templates;
+
 import gameNet.GameControl;
 import gameNet.GameNet_CoreGame;
 import my_networked_game.Enums.MyGameInputType;
 import my_networked_game.Enums.MyGameOutputType;
 import my_networked_game.HelperClasses.Player;
+import my_networked_game.HelperClasses.ScoreSheetBuilder;
 
 public class MyGame extends GameNet_CoreGame implements Serializable
 {
@@ -41,70 +44,123 @@ public class MyGame extends GameNet_CoreGame implements Serializable
         
         MyGameOutput myGameOutput = null;
         
-        Player p = null;
+        Player player = myGameInput.getOriginatingPlayer();
+        
+        DiceSet diceSet = myGameInput.getCurrentDiceSet();
+        
+        int rollCounter = 0;
+        
+        
         
         switch (myGameInput.getInputType())
         {
         case REGISTER_PLAYER:
-        	p = new Player(myGameInput.getUsername(), myGameInput.getPlayerID(), 0);        	
+        	player = new Player(myGameInput.getUsername(), myGameInput.getPlayerID(), 0);        	
         	System.out.println("Player [" + myGameInput.getUsername() + "] registered with ID [" + myGameInput.getPlayerID() + "]");
-        	playerList.add(p);
+        	playerList.add(player);
         	
         	// Notify all players
-        	myGameOutput = new MyGameOutput(p, MyGameOutputType.PLAYER_REGISTERED);
+        	myGameOutput = new MyGameOutput(player, MyGameOutputType.PLAYER_REGISTERED);
         	
         	break;
         	
         // A player left the game. Remove them from the player list and move to the next player.
         case UNREGISTER_PLAYER:
 
-        	if (currentPlayer != null)
+        	if (currentPlayer.equals(player))
         		currentPlayer = nextPlayer();
-
         	
-        	System.out.println("Player [" + myGameInput.getUsername() + "] registered with ID [" + myGameInput.getPlayerID() + "]");
-        	playerList.remove(p);
+        	System.out.println("Player [" + myGameInput.getUsername() + "] left the game");
+        	playerList.remove(player);
         	
-        	// Notify all players
+        	// recursively call this method t
         	process(new MyGameInput(MyGameInputType.GENERATE_NEW_TURN));
-        	myGameOutput = new MyGameOutput(p, MyGameOutputType.PLAYER_UNREGISTERED);
+        	
+        	// update the other players that this player left
+        	myGameOutput = new MyGameOutput(player, MyGameOutputType.PLAYER_UNREGISTERED);
 
         case GENERATE_NEW_TURN:
-        	myGameOutput = generateNewTurn();
+        	//	Create a copy so we don't modify playerList until the player submits score
+        	player = new Player(currentPlayer);
+        	
+        	diceSet = new DiceSet();
+        	
+        	rollCounter = 0;
+        	// We use currentPlayer because it's a new turn
+        	ScoreSheetBuilder.UpdatePlayerScoreSheet(diceSet, player, false);
+        	
+        	myGameOutput = new MyGameOutput(player, playerList, diceSet, true);
         	break;
         	
         case GAME_BEGIN:
-        	// TODO XXX klgdjlksdjgsdg
         	currentPlayer = playerList.get(0);
+        	player = new Player(currentPlayer);
+        	
+        	diceSet = new DiceSet();
+        	
+        	rollCounter = 0;
+        	
+        	ScoreSheetBuilder.UpdatePlayerScoreSheet(diceSet, player, false);
+        	
+        	myGameOutput = new MyGameOutput(player, playerList, diceSet);
         	break;
         	
         case PLAYER_ROLL:
         	// roll the unheld dice
+        	diceSet.roll();
+        	
         	// process valid scoring plays
         	// apply the valid scoring plays to the player's score sheet
+        	
+        	ScoreSheetBuilder.UpdatePlayerScoreSheet(diceSet, player, false);
+
+        	// increment the roll counter
+        	rollCounter++;
+        	
         	// build the output object
+        	myGameOutput = new MyGameOutput(player, playerList, diceSet, rollCounter != 2);
         	break;
         	
         case PLAYER_SUBMIT:
         	// commit the selected score to the player's scoresheet
         	// set the SELECTED VALUE isUsed = true
+        	ScoreSheetBuilder.FinalizeScore(player);
+        	
+        	playerList.set(playerList.indexOf(player), player);
+        	
         	// go to the next player: currentPlayer = nextPlayer()
         	// generate a new set of dice
-        	// process the valid scoring plays against currentPlayer's score sheet
-        	// build the output object
-        	// if (isGameEnded == true)
-        	//		MyGameOutputType.GAME_OVER
-        	// else
-        	//		MyGameOutputType.MAIN_GAME
+        	// reset the roll counter
+        	currentPlayer = nextPlayer();
+        	
+        	if (isGameEnded)
+        	{
+        		myGameOutput = new MyGameOutput(playerList);
+        	}
+        	else
+        	{
+        	
+        		player = new Player(currentPlayer);
+        		rollCounter = 0;
+        		diceSet = new DiceSet();
+
+        		// 	process the valid scoring plays against currentPlayer's score sheet
+        		ScoreSheetBuilder.UpdatePlayerScoreSheet(diceSet, player, false);
+
+        		// build the output object
+        		myGameOutput = new MyGameOutput(player, playerList, diceSet, true);
+        	}
         	break;
         	
         case PLAYER_SKIP:
         	// player skipped
         	// Need to generate output to so that the player can select a field to skip
+        	ScoreSheetBuilder.UpdatePlayerScoreSheet(diceSet, player, true);
+
+        	myGameOutput = new MyGameOutput(player, playerList, diceSet, false);
         	break;
 
 		default:
-			// TODO leave this for whatever is left over
 			break; 	
         }
         return myGameOutput;
@@ -126,13 +182,6 @@ public class MyGame extends GameNet_CoreGame implements Serializable
 			return playerList.get(0);
 		}
 		return playerList.get(playerList.lastIndexOf(currentPlayer) + 1);
-	}
-	
-	private MyGameOutput generateNewTurn()
-	{
-		// TODO Should populate the SelectableTextFieldState[] array in each Player object. MyGameOutput relies on this.
-		
-		return new MyGameOutput(currentPlayer, playerList, new DiceSet());
 	}
 	
 	@Override

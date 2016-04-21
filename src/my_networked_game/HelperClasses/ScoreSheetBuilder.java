@@ -30,13 +30,36 @@ public class ScoreSheetBuilder
 
 		newStates = DiceSetScoreProcessor.processDiceSet(diceSet, player, isTurnSkip);
 
-		fillTotals(newStates);
+		FillTotals(newStates);
 
 		player.scoreData = newStates;
 
 	}
+	
+	public static void FinalizeScore(Player player)
+	{
+		for (SelectableTextFieldState state : player.scoreData)
+		{
+			if (state.isUsed)
+				continue;
+			
+			if (state.isSelected)
+			{
+				state.isUsed = true;
+				state.isSelectable = false;
+				state.isSelected = false;
+			}
+			
+			else
+			{
+				state.fieldValue = "";
+				state.isSelectable = false;
+				state.isSelected = false;
+			}
+		}
+	}
 
-	private static void fillTotals(ArrayList<SelectableTextFieldState> states)
+	private static void FillTotals(ArrayList<SelectableTextFieldState> states)
 	{
 		//UPPER_SUB_TOTAL(6),     
 		int 	upper_sub_total 	= 0,

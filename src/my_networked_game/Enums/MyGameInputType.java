@@ -8,5 +8,6 @@ public enum MyGameInputType
 	GAME_BEGIN,
 	PLAYER_SKIP,
 	PLAYER_SUBMIT,
-	PLAYER_ROLL
+	PLAYER_ROLL,
+	MESSAGE
 }

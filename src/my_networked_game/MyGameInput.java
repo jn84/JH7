@@ -15,42 +15,114 @@ public class MyGameInput implements Serializable
 	
 	private String originatingName = "",
 				   originatingID = "";
+	
+	private Player originatingPlayer = null;
+	
+	private String playerMessage = null;
 
+
+	//	GAME_BEGIN
+	//		NOTHING
+
+	public MyGameInput()
+	{
+		inputType = MyGameInputType.GAME_BEGIN;
+	}
+	
+	
+	
+	//		REGISTER_PLAYER
+	//		UNREGISTER_PLAYER,
 	/**
-	 * Use this constructor ONLY to register the player
+	 * Use this constructor only to register/unregister the player
 	 * 
 	 * @param p
 	 * The sending player's ID object
 	 * 
 	 */
-	public MyGameInput(Player p)
+	public MyGameInput(Player p, MyGameInputType type)
 	{
-		originatingName = p.getName();
-		originatingID = p.getID();
-		inputType = MyGameInputType.REGISTER_PLAYER;
+		switch (type)
+		{
+		// Doesn't need originatingPlayer since it creates the object for the first time.
+		case REGISTER_PLAYER:
+			originatingName = p.getName();
+			originatingID = p.getID();
+			inputType = type;
+			break;
+		case UNREGISTER_PLAYER:
+			originatingName = p.getName();
+			originatingID = p.getID();
+			originatingPlayer = p;
+			inputType = type;
+		default:
+			break;
+		}
 	}
-	
+
+
+	//	PLAYER_SKIP
+	//		Dice
+	//		Player
+	//	PLAYER_SUBMIT
+	//		Dice
+	//		Player
+	//	PLAYER_ROLL
+	//		Dice
+	//		Player
 	/**
-	 * 
-	 * Use this constructor in cases where a player left the game 
-	 * 
+	 * Use when the player rolls, submits, or skips
+	 * @param p
+	 * The player that created this object 
+	 * The player object should have its scoresheet member variable 
+	 * updated to reflect the current state of the scoresheet
+	 * @param
+	 * The state of the dice for the player that created this object
 	 * @param type 
-	 * The type of action to force
+	 * The type of input to communicate to the server (which button was pressed)
 	 * 
+	 */
+	public MyGameInput(Player p, DiceSet ds, MyGameInputType type)
+	{
+		originatingPlayer = p;
+		diceSet = ds;
+		inputType = type;
+	}
+
+	//		GENERATE_NEW_TURN
+	/**
+	 * Use when player left the game,
+	 * @param type
 	 */
 	public MyGameInput(MyGameInputType type)
 	{
 		inputType = type;
 	}
 	
-	public MyGameInput()
+	// 	MESSAGE
+	//		originatingName
+	//		Message
+	/**
+	 * Constructor to send a message to other players
+	 * @param playerName
+	 * The name of the sending player (player.getName())
+	 * @param message
+	 * The message to send to other players
+	 */
+	public MyGameInput(String playerName, String message)
 	{
-		// get field states
+		originatingName = playerName;
+		playerMessage = message;
 	}
 	
 	public MyGameInputType getInputType()
 	{
 		return inputType;
+	}
+	
+	public String getMessage()
+	{
+		return playerMessage;
 	}
 	
 	public String getUsername()
@@ -63,14 +135,13 @@ public class MyGameInput implements Serializable
 		return originatingID;
 	}
 	
-	// gather all the data from the client user interface and send it off to the server
+	public Player getOriginatingPlayer()
+	{
+		return originatingPlayer;
+	}
 	
-	// which move the player chose to score
-	
-	// the state of the dice
-	
-	// ??? probably more
-	
-	
-	// server will determine, based on what was done, where to take the state of the game
+	public DiceSet getCurrentDiceSet()
+	{
+		return diceSet;
+	}
 }

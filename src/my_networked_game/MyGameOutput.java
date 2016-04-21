@@ -5,10 +5,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 
 import my_networked_game.Enums.MyGameOutputType;
-import my_networked_game.Enums.ScoreTypes;
 import my_networked_game.HelperClasses.Player;
-import my_networked_game.HelperClasses.SelectableTextFieldGroup;
-import my_networked_game.HelperClasses.SelectableTextFieldState;
 
 public class MyGameOutput implements Serializable
 {
@@ -17,13 +14,13 @@ public class MyGameOutput implements Serializable
 
 	private MyGameOutputType outputType = null;
 	
+	private String outputMessage = "";
+	
 	private Player currentActivePlayer = null;
 
-	private ArrayList<Player> playerList = null;
+	HashMap<String, Player> playerMap = new HashMap<String, Player>();
 	
-	private ArrayList<String> messageList = new ArrayList<String>();
-	
-	private SelectableTextFieldState[] textFieldStates = null;
+	private boolean canRoll = true;
 	
 	// Everyone can see the rolls, but only the player identified by currentPlayerID can interact
 	// Each player's user interface will determine if they are the active player 
@@ -39,7 +36,6 @@ public class MyGameOutput implements Serializable
 	// Scoring data
 	// Should be an array of score information per player
 	// Players will pull their own scoresheet data since  they will know their PlayerID
-	//HashMap<long, PlayerScoreData> scoresMap = new HashMap();
 	
 	/**
 	 * Constructor to register a new player or specatator
@@ -56,24 +52,59 @@ public class MyGameOutput implements Serializable
 	}
 	
 	/**
-	 * 	Main game constructor
+	 *	Constructor for the game begin object which well tell the client windows to switch from
+	 *	the lobby view to the main game view.
+	 * @param currentPlayer
+	 * @param playerList
+	 * @param diceSet
 	 */
 	public MyGameOutput(Player currentPlayer, ArrayList<Player> playerList, DiceSet diceSet)
 	{
+		for (Player elem : playerList)
+			playerMap.put(elem.getID(), elem);
+		
 		this.currentActivePlayer = currentPlayer;
-		this.playerList = playerList;
 		this.diceSet = diceSet;
+		this.canRoll = true;
+		outputType = MyGameOutputType.GAME_BEGIN; 
+	}
+	
+	
+	
+	/**
+	 * 	Main game constructor
+	 */
+	public MyGameOutput(Player currentPlayer, ArrayList<Player> playerList, DiceSet diceSet, boolean canRoll)
+	{
+		for (Player elem : playerList)
+			playerMap.put(elem.getID(), elem);
 		
-		diceSet.roll();
-		
-		// TODO
-		// This should now check what moves are valid for the current player, and get/build array of SelectableTextFieldState[]
-		// This information should be pulled (or pushed) from MyGame
-		/// ....
-		// Maybe not. each playerList object contains this array.. so this array should be prepared before calling this method
-		
-		
+		this.currentActivePlayer = currentPlayer;
+		this.diceSet = diceSet;
+		this.canRoll = canRoll;
 		outputType = MyGameOutputType.MAIN_GAME; 
+	}
+	
+	/**
+	 * Game over constructor
+	 */
+	public MyGameOutput(ArrayList<Player> playerList)
+	{
+		for (Player elem : playerList)
+			playerMap.put(elem.getID(), elem);
+		
+		this.outputType = MyGameOutputType.GAME_OVER;
+	}
+	
+	// added as an afterthought
+	public void setMessage(String message)
+	{
+		outputMessage = message;
+	}
+	
+	public String getMessage()
+	{
+		return outputMessage;
 	}
 	
 	public MyGameOutputType getOutputType()
@@ -84,5 +115,15 @@ public class MyGameOutput implements Serializable
 	public Player getActivePlayer()
 	{
 		return currentActivePlayer;
+	}
+	
+	public Player getMyPlayer(String playerID)
+	{
+		return playerMap.get(playerID);
+	}
+	
+	public boolean canPlayerRollDice()
+	{
+		return canRoll;
 	}
 }
