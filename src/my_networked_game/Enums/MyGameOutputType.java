@@ -7,5 +7,5 @@ public enum MyGameOutputType
 	GAME_BEGIN,
 	MAIN_GAME,
 	GAME_OVER, // all players disabled.
-	SEND_ID;
+	MESSAGE;
 }

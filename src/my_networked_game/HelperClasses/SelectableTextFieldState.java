@@ -1,9 +1,15 @@
 package my_networked_game.HelperClasses;
 
+import java.io.Serializable;
 
 // These objects will be passed around the network
-public class SelectableTextFieldState
+public class SelectableTextFieldState implements Serializable
 {
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 821919119973228309L;
+
 	// I don't like making these member variables public, but I ran into strange issues relating to program design.
 	// I'll try to resolve this if time allows.
 	

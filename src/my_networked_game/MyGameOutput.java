@@ -18,13 +18,13 @@ public class MyGameOutput implements Serializable
 	
 	private Player currentActivePlayer = null;
 
-	HashMap<String, Player> playerMap = new HashMap<String, Player>();
+	private HashMap<String, Player> playerMap = new HashMap<String, Player>();
 	
 	private boolean canRoll = true;
 	
 	// Everyone can see the rolls, but only the player identified by currentPlayerID can interact
 	// Each player's user interface will determine if they are the active player 
-	DiceSet diceSet = null;
+	private DiceSet diceSet = null;
 	
 	// Player names/scores for score list
 	
@@ -38,7 +38,7 @@ public class MyGameOutput implements Serializable
 	// Players will pull their own scoresheet data since  they will know their PlayerID
 	
 	/**
-	 * Constructor to register a new player or specatator
+	 * Constructor to register/unregister a player or spectator
 	 * 
 	 * @param name
 	 * Name of the player registering
@@ -110,6 +110,11 @@ public class MyGameOutput implements Serializable
 	public MyGameOutputType getOutputType()
 	{
 		return outputType;
+	}
+	
+	public DiceSet getDice()
+	{
+		return diceSet;
 	}
 	
 	public Player getActivePlayer()

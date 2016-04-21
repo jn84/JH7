@@ -3,6 +3,7 @@ package my_networked_game;
 import java.io.Serializable;
 
 import my_networked_game.Enums.MyGameInputType;
+import my_networked_game.Enums.MyGameOutputType;
 import my_networked_game.HelperClasses.Player;
 
 public class MyGameInput implements Serializable
@@ -23,7 +24,9 @@ public class MyGameInput implements Serializable
 
 	//	GAME_BEGIN
 	//		NOTHING
-
+	/**
+	 * Use to trigger the game to begin (move on from lobby)
+	 */
 	public MyGameInput()
 	{
 		inputType = MyGameInputType.GAME_BEGIN;
@@ -31,8 +34,10 @@ public class MyGameInput implements Serializable
 	
 	
 	
-	//		REGISTER_PLAYER
-	//		UNREGISTER_PLAYER,
+	//		REGISTER_PLAYER needs
+	//			Player
+	//		UNREGISTER_PLAYER needs
+	//			Player
 	/**
 	 * Use this constructor only to register/unregister the player
 	 * 
@@ -44,12 +49,7 @@ public class MyGameInput implements Serializable
 	{
 		switch (type)
 		{
-		// Doesn't need originatingPlayer since it creates the object for the first time.
 		case REGISTER_PLAYER:
-			originatingName = p.getName();
-			originatingID = p.getID();
-			inputType = type;
-			break;
 		case UNREGISTER_PLAYER:
 			originatingName = p.getName();
 			originatingID = p.getID();
@@ -61,13 +61,13 @@ public class MyGameInput implements Serializable
 	}
 
 
-	//	PLAYER_SKIP
+	//	PLAYER_SKIP needs
 	//		Dice
 	//		Player
-	//	PLAYER_SUBMIT
+	//	PLAYER_SUBMIT needs
 	//		Dice
 	//		Player
-	//	PLAYER_ROLL
+	//	PLAYER_ROLL needs
 	//		Dice
 	//		Player
 	/**
@@ -89,17 +89,20 @@ public class MyGameInput implements Serializable
 		inputType = type;
 	}
 
-	//		GENERATE_NEW_TURN
+	//		GENERATE_NEW_TURN needs
+	//			inputType (GENERATE_NEW_TURN)
 	/**
-	 * Use when player left the game,
-	 * @param type
+	 * Use to generate new turn (only used internally by MyGame)
+	 * @param type 
+	 * Irrelevant. Parameter exists to differentiate constructors.
+	 * Can be null
 	 */
 	public MyGameInput(MyGameInputType type)
 	{
-		inputType = type;
+		inputType = MyGameInputType.GENERATE_NEW_TURN;
 	}
 	
-	// 	MESSAGE
+	// 	MESSAGE needs
 	//		originatingName
 	//		Message
 	/**
@@ -113,6 +116,7 @@ public class MyGameInput implements Serializable
 	{
 		originatingName = playerName;
 		playerMessage = message;
+		inputType = MyGameInputType.MESSAGE;
 	}
 	
 	public MyGameInputType getInputType()

@@ -63,8 +63,21 @@ public class Player implements Serializable, Comparable<Player>
 	
 	public int getScore()
 	{
-		return playerScore;
+		try
+		{
+			return Integer.parseInt(scoreData.get(ScoreTypes.FINAL_GRAND_TOTAL.ordinal()).fieldValue);
+		}
+		catch (NumberFormatException e)
+		{
+			return 0;
+		}
 	}
+	
+	public ArrayList<SelectableTextFieldState> getScoreData()
+	{
+		return scoreData;
+	}
+	
 
 	@Override
 	public int compareTo(Player o)

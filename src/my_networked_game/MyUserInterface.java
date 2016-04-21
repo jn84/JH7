@@ -10,6 +10,7 @@ import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
+import java.awt.event.WindowListener;
 import java.util.ArrayList;
 import java.util.Random;
 
@@ -84,6 +85,16 @@ class MyUserInterface extends JFrame implements GameNet_UserInterface, ActionLis
     public MyUserInterface()
     {
         super("Jahtzee!");
+        
+        this.addWindowListener(new WindowAdapter()		
+        {
+        	@Override
+        	public void windowDeactivated(WindowEvent e)
+        	{
+        		exitProgram();
+        	}
+		});
+        
     }
     
     
@@ -178,8 +189,8 @@ class MyUserInterface extends JFrame implements GameNet_UserInterface, ActionLis
     public void registerPlayer()
     {
         Random r = new Random();
-        thisPlayer = new Player(myGamePlayer.getPlayerName(), Integer.toString(r.nextInt(10000000)), 0); 
-        myGamePlayer.sendMessage(new MyGameInput(thisPlayer));
+        thisPlayer = new Player(myGamePlayer.getPlayerName(), Integer.toString(r.nextInt(100000000)), 0); 
+        myGamePlayer.sendMessage(new MyGameInput(thisPlayer, MyGameInputType.REGISTER_PLAYER));
     }
     
     public void receivedMessage(Object ob)
@@ -190,14 +201,25 @@ class MyUserInterface extends JFrame implements GameNet_UserInterface, ActionLis
     	{
     	case PLAYER_REGISTERED:
     		playerListPanel.addPlayer(myGameOutput.getActivePlayer());
+    		
     		break;
     	case PLAYER_UNREGISTERED:
     		playerListPanel.removePlayer(myGameOutput.getActivePlayer());
     		break;
     	case GAME_BEGIN:
     		this.remove(lobbyPanel);
+    		// do the init stuff (my turn, fill out scoresheet, etc.)
+    		processServerOutput(myGameOutput);
+    		// then add the panel
     		this.add(mainGamePanel);
     		// TODO also should get first player package (dice and scoresheets)
+    		
+    		break;
+    	case MAIN_GAME:
+    		break;
+    	case GAME_OVER:
+    		break;
+    	case MESSAGE:
     		break;
 		default:
 			break;
@@ -209,13 +231,13 @@ class MyUserInterface extends JFrame implements GameNet_UserInterface, ActionLis
     {
     	myGameInput = new MyGameInput(type);
     	
-    	switch (type)
-    	{
-    	case BEGIN_GAME:
-    		break;
-    	default:
-    		break;
-    	}
+//    	switch (type)
+//    	{
+//    	case BEGIN_GAME:
+//    		break;
+//    	default:
+//    		break;
+//    	}
     	
     	myGamePlayer.sendMessage(myGameInput);
     }
@@ -225,9 +247,52 @@ class MyUserInterface extends JFrame implements GameNet_UserInterface, ActionLis
     	
     }
     
+    //	
+    //	
+    //	
+    //	
+    //	
+    //	Working on processing the server output method (below)
+    //	Interface should be disabled for player who's turn it is NOT
+    //	Focus on interface stuff
+    //	
+    //	
+    //	
+    //	
+    //	
+    //	
+    //	
+
+    
+    private void processServerOutput(MyGameOutput myGameOutputObj)
+    {
+    	isMyTurn = myGameOutputObj.getActivePlayer().equals(thisPlayer);
+    	
+    	// It's my turn
+    	if (isMyTurn)
+    	{
+    		updateSelectableTextFields(myGameOutputObj.getActivePlayer().getScoreData());
+    		localDiceSet = myGameOutputObj.getDice();
+    		dicePanel.updateDice();
+    			
+    	}
+    	
+    	// It's not my turn
+    	else
+    	{
+    		updateSelectableTextFields(myGameOutputObj.getMyPlayer(thisPlayer.getID()).getScoreData());
+    		localDiceSet = myGameOutputObj.getDice();
+    		dicePanel.updateDice();
+    		// Disable Dice Panel
+    		dicePanel.setEnabled(false);
+    		
+    	}
+    }
+    
     // Nice to let people know you are leaving
     private void exitProgram()
     {
+    	myGamePlayer.sendMessage(new MyGameInput(thisPlayer, MyGameInputType.UNREGISTER_PLAYER));
         myGamePlayer.doneWithGame();
         System.exit(0);
     }
@@ -239,9 +304,9 @@ class MyUserInterface extends JFrame implements GameNet_UserInterface, ActionLis
         this.setVisible(true);
     }
     
-    private void updateSelectableTextFields(SelectableTextFieldState[] st)
+    private void updateSelectableTextFields(ArrayList<SelectableTextFieldState> states)
     {
-    	selectableTextFields.setStates(st);
+    	selectableTextFields.setStates(states);
     }
     
     // Inner Class
@@ -270,7 +335,7 @@ class MyUserInterface extends JFrame implements GameNet_UserInterface, ActionLis
 				@Override
 				public void actionPerformed(ActionEvent e)
 				{
-					MyUserInterface.this.buildInput(MyGameInputType.BEGIN_GAME);
+					myGamePlayer.sendMessage(new MyGameInput());
 				}
 			});
     	}
@@ -484,14 +549,6 @@ class MyUserInterface extends JFrame implements GameNet_UserInterface, ActionLis
     		this.add(txtLowerTotal);
     		this.add(lblGrandTotal);
     		this.add(txtGrandTotal);
-    		
-    		// XXX Debug selectable text field
-    		for (SelectableTextField field : selectableTextFields)
-    		{
-    			field.setState(new SelectableTextFieldState("///////////////////////////////", false, true));
-    		}
-    		// End Debug
-    	
     	}
     }
     
@@ -588,6 +645,7 @@ class MyUserInterface extends JFrame implements GameNet_UserInterface, ActionLis
     	 */
     	public void setEnabled(boolean value)
     	{
+    		// XXX If clicking on dice images is enables, this will probably need to be changed
     		for (JCheckBox elem : holdCheckBoxes)
     			elem.setEnabled(value);
     	}

@@ -44,9 +44,9 @@ public class MyGame extends GameNet_CoreGame implements Serializable
         
         MyGameOutput myGameOutput = null;
         
-        Player player = myGameInput.getOriginatingPlayer();
+        Player player = null;
         
-        DiceSet diceSet = myGameInput.getCurrentDiceSet();
+        DiceSet diceSet = null;
         
         int rollCounter = 0;
         
@@ -55,7 +55,8 @@ public class MyGame extends GameNet_CoreGame implements Serializable
         switch (myGameInput.getInputType())
         {
         case REGISTER_PLAYER:
-        	player = new Player(myGameInput.getUsername(), myGameInput.getPlayerID(), 0);        	
+        	player = myGameInput.getOriginatingPlayer(); 
+        	
         	System.out.println("Player [" + myGameInput.getUsername() + "] registered with ID [" + myGameInput.getPlayerID() + "]");
         	playerList.add(player);
         	
@@ -66,7 +67,8 @@ public class MyGame extends GameNet_CoreGame implements Serializable
         	
         // A player left the game. Remove them from the player list and move to the next player.
         case UNREGISTER_PLAYER:
-
+        	player = myGameInput.getOriginatingPlayer();
+        	
         	if (currentPlayer.equals(player))
         		currentPlayer = nextPlayer();
         	
@@ -106,6 +108,9 @@ public class MyGame extends GameNet_CoreGame implements Serializable
         	break;
         	
         case PLAYER_ROLL:
+        	player = myGameInput.getOriginatingPlayer();
+        	diceSet = myGameInput.getCurrentDiceSet();
+        	
         	// roll the unheld dice
         	diceSet.roll();
         	
@@ -122,6 +127,9 @@ public class MyGame extends GameNet_CoreGame implements Serializable
         	break;
         	
         case PLAYER_SUBMIT:
+        	player = myGameInput.getOriginatingPlayer();
+        	diceSet = myGameInput.getCurrentDiceSet();
+        	
         	// commit the selected score to the player's scoresheet
         	// set the SELECTED VALUE isUsed = true
         	ScoreSheetBuilder.FinalizeScore(player);
@@ -153,6 +161,9 @@ public class MyGame extends GameNet_CoreGame implements Serializable
         	break;
         	
         case PLAYER_SKIP:
+        	player = myGameInput.getOriginatingPlayer();
+        	diceSet = myGameInput.getCurrentDiceSet();
+        	
         	// player skipped
         	// Need to generate output to so that the player can select a field to skip
         	ScoreSheetBuilder.UpdatePlayerScoreSheet(diceSet, player, true);
