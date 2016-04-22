@@ -344,8 +344,15 @@ public class DiceSetScoreProcessor
 	public static boolean isInSequence(ArrayList<Integer> list)
 	{
 		for (int i = 0 ; i < list.size() - 2; i++)
+		{
+			System.out.println("Is first inequal to second?: " + list.get(i) + " to " + (list.get(i + 1) - 1));
 			if (list.get(i) != (list.get(i + 1) - 1))
+			{
+				System.out.println("Comparison was false");
 				return false;
+			}
+		}
+		System.out.println("Comparison was true");
 		return true;
 	}
 }

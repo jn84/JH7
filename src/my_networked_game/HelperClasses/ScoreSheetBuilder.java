@@ -58,6 +58,27 @@ public class ScoreSheetBuilder
 			}
 		}
 	}
+	
+	//
+	//
+	//
+	//
+	//
+	//
+	//
+	//
+	//
+	//		JKust run the the program and look for straight (4 and 5)
+	//
+	//
+	//
+	//
+	//
+	//
+	//
+	//
+	//
+	
 
 	private static void FillTotals(ArrayList<SelectableTextFieldState> states)
 	{
@@ -109,7 +130,7 @@ public class ScoreSheetBuilder
 		//FINAL_LOWER_GRAND_TOTAL(21),   
 		for (int s = ScoreTypes.KIND_3.ordinal(); s <= ScoreTypes.CHANCE.ordinal(); s++)
 		{
-			if (!states.get(s).isUsed)
+			if (states.get(s).isUsed)
 				break;
 			try
 			{
