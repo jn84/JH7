@@ -1,16 +1,14 @@
 package my_networked_game;
 
 import java.awt.BorderLayout;
+import java.awt.CardLayout;
 import java.awt.Color;
 import java.awt.Component;
 import java.awt.GridLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.awt.event.MouseEvent;
-import java.awt.event.MouseListener;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
-import java.awt.event.WindowListener;
 import java.util.ArrayList;
 import java.util.Random;
 
@@ -34,16 +32,20 @@ import my_networked_game.Enums.MyGameInputType;
 import my_networked_game.Enums.ScoreTypes;
 import my_networked_game.HelperClasses.Player;
 import my_networked_game.HelperClasses.SelectableTextField;
+import my_networked_game.HelperClasses.SelectableTextFieldEvent;
 import my_networked_game.HelperClasses.SelectableTextFieldGroup;
 import my_networked_game.HelperClasses.SelectableTextFieldState;
+import my_networked_game.Interfaces.SelectableTextFieldListener;
 
-
-class MyUserInterface extends JFrame implements GameNet_UserInterface, ActionListener
+class MyUserInterface extends JFrame implements GameNet_UserInterface, SelectableTextFieldListener
 {
     /**
 	 * 
 	 */
 	private static final long serialVersionUID = -1558976730059939642L;
+	
+	private static final String lobbyPanelID = "LOBBY",
+								mainGamePanelID = "MAIN_GAME";
 	
 	public static ImageIcon  dieDefault_1 = new ImageIcon("Resources\\One.png"),  
 			 				 dieDefault_2 = new ImageIcon("Resources\\Two.png"),  
@@ -54,6 +56,10 @@ class MyUserInterface extends JFrame implements GameNet_UserInterface, ActionLis
 			 				 dieBlank 	  = new ImageIcon("Resources\\Blank.png");
 	
 	private boolean isMyTurn = false;
+	
+	private CardLayout mainPanelLayout = new CardLayout();
+	
+	private JPanel mainPanel = new JPanel(mainPanelLayout);
 	
 	private DiceSet localDiceSet = new DiceSet();
 
@@ -89,12 +95,11 @@ class MyUserInterface extends JFrame implements GameNet_UserInterface, ActionLis
         this.addWindowListener(new WindowAdapter()		
         {
         	@Override
-        	public void windowDeactivated(WindowEvent e)
+        	public void windowClosing(WindowEvent e)
         	{
         		exitProgram();
         	}
 		});
-        
     }
     
     
@@ -106,7 +111,11 @@ class MyUserInterface extends JFrame implements GameNet_UserInterface, ActionLis
         // Boring screen things 
         this.myLayout();
         //this.add(mainGamePanel, BorderLayout.CENTER);
-        this.add(lobbyPanel, BorderLayout.CENTER);
+        this.mainPanel.add(lobbyPanel, lobbyPanelID);
+        this.mainPanel.add(mainGamePanel, mainGamePanelID);
+        this.add(mainPanel);
+        mainPanelLayout.show(mainPanel, lobbyPanelID);
+        
         
         submitButton.addActionListener(new ActionListener()
 		{
@@ -137,22 +146,18 @@ class MyUserInterface extends JFrame implements GameNet_UserInterface, ActionLis
 				skipClick();
 			}
 		});
+        
+        selectableTextFields.addSelectableTextFieldEventListener(this);
     }
+    
 
-    /**
-     * Disables or enables the various control in the user interface
-     * Used to control which player's turn it is.
-     * 
-     * @param value
-     * True to enable, false to disable
-     */
-    public void setUserInterfaceInteractable()
-    {
-    	submitButton.setEnabled(isMyTurn);
-    	skipButton.setEnabled(isMyTurn);
-    	rollButton.setEnabled(isMyTurn);
-    	dicePanel.setEnabled(isMyTurn);
-    }
+	@Override
+	public void handleSelectableTextFieldEvent(SelectableTextFieldEvent event)
+	{
+		if (event.getIsValidSelection())
+			validScoringPlaySelected();
+	}
+
     
     public void submitClick()
     {
@@ -186,6 +191,14 @@ class MyUserInterface extends JFrame implements GameNet_UserInterface, ActionLis
     	// when we roll, we want to make sure everything in the score sheet is unselected
     }
     
+    
+    public void validScoringPlaySelected()
+    {
+    	if (!isMyTurn)
+    		return;
+    	submitButton.setEnabled(true);
+    }
+    
     public void registerPlayer()
     {
         Random r = new Random();
@@ -197,6 +210,8 @@ class MyUserInterface extends JFrame implements GameNet_UserInterface, ActionLis
     {
     	MyGameOutput myGameOutput = (MyGameOutput)ob;
     	
+    	System.out.println(myGameOutput.getOutputType().toString());
+    	
     	switch (myGameOutput.getOutputType())
     	{
     	case PLAYER_REGISTERED:
@@ -207,17 +222,15 @@ class MyUserInterface extends JFrame implements GameNet_UserInterface, ActionLis
     		playerListPanel.removePlayer(myGameOutput.getActivePlayer());
     		break;
     	case GAME_BEGIN:
-    		this.remove(lobbyPanel);
-    		// do the init stuff (my turn, fill out scoresheet, etc.)
-    		processServerOutput(myGameOutput);
-    		// then add the panel
-    		this.add(mainGamePanel);
-    		// TODO also should get first player package (dice and scoresheets)
-    		
+    		mainGamePanel.init();
+    		mainPanelLayout.show(mainPanel, mainGamePanelID);
+    		updateInterfaceState(myGameOutput);
     		break;
     	case MAIN_GAME:
+    		updateInterfaceState(myGameOutput);
     		break;
     	case GAME_OVER:
+    		updateInterfaceState(myGameOutput);
     		break;
     	case MESSAGE:
     		break;
@@ -242,53 +255,52 @@ class MyUserInterface extends JFrame implements GameNet_UserInterface, ActionLis
     	myGamePlayer.sendMessage(myGameInput);
     }
     
-    public void actionPerformed(ActionEvent e) 
-    {
-    	
-    }
     
-    //	
-    //	
-    //	
     //	
     //	
     //	Working on processing the server output method (below)
     //	Interface should be disabled for player who's turn it is NOT
     //	Focus on interface stuff
     //	
-    //	
-    //	
-    //	
-    //	
-    //	
-    //	
 
     
-    private void processServerOutput(MyGameOutput myGameOutputObj)
+    private void updateInterfaceState(MyGameOutput myGameOutputObj)
     {
     	isMyTurn = myGameOutputObj.getActivePlayer().equals(thisPlayer);
+    	System.out.println(isMyTurn ? "It's my turn" : "It's NOT my turn");
     	
     	// It's my turn
     	if (isMyTurn)
     	{
-    		updateSelectableTextFields(myGameOutputObj.getActivePlayer().getScoreData());
-    		localDiceSet = myGameOutputObj.getDice();
-    		dicePanel.updateDice();
-    			
+    		thisPlayer = myGameOutputObj.getActivePlayer();
+    		updateSelectableTextFields(thisPlayer.getScoreData());
+    		dicePanel.updateDice(myGameOutputObj.getDice());
+    		dicePanel.setEnabled(true);
+    		
+    		// Maybe we want to make this disabled is the player is currently skipping?
+    		skipButton.setEnabled(true);
+   			rollButton.setEnabled(myGameOutputObj.canPlayerRollDice());
+   			// Submit button should only be enabled once we get the signal from the
+   			// scoresheet that a valid selection has been made.
+   			// see handleSelectableTextFieldEvent
+   			submitButton.setEnabled(false);
+   			
     	}
     	
     	// It's not my turn
     	else
     	{
-    		updateSelectableTextFields(myGameOutputObj.getMyPlayer(thisPlayer.getID()).getScoreData());
-    		localDiceSet = myGameOutputObj.getDice();
-    		dicePanel.updateDice();
+    		thisPlayer = myGameOutputObj.getMyPlayer(thisPlayer.getID());
+    		updateSelectableTextFields(thisPlayer.getScoreData());
+    		dicePanel.updateDice(myGameOutputObj.getDice());
+    		
     		// Disable Dice Panel
     		dicePanel.setEnabled(false);
+    		buttonPanel.setEnabled(false);
     		
     	}
     }
-    
+
     // Nice to let people know you are leaving
     private void exitProgram()
     {
@@ -299,7 +311,7 @@ class MyUserInterface extends JFrame implements GameNet_UserInterface, ActionLis
     
     private void myLayout()
     {
-        this.setLayout(new BorderLayout());
+        this.setLayout(mainPanelLayout);
         this.setSize(800, 600);
         this.setVisible(true);
     }
@@ -370,6 +382,11 @@ class MyUserInterface extends JFrame implements GameNet_UserInterface, ActionLis
     			modelPlayers.removeElement(p);
     	}
     	
+    	/**
+    	 * Update the given player's data in the field
+    	 * @param p
+    	 * The player object to update
+    	 */
     	public void updatePlayer(Player p)
     	{
     		if (!modelPlayers.contains(p))
@@ -418,6 +435,15 @@ class MyUserInterface extends JFrame implements GameNet_UserInterface, ActionLis
     		this.add(scoreCardPanel);
     		this.add(gamePlayPanel);
 		}
+    	
+    	/**
+    	 * For initializing this panel
+    	 * Initialize this panel before showing it
+    	 */
+    	public void init()
+    	{
+    		gamePlayPanel.init();
+    	}
     }
     
     private class ScoreCardPanel extends JPanel
@@ -567,8 +593,16 @@ class MyUserInterface extends JFrame implements GameNet_UserInterface, ActionLis
 			this.add(dicePanel);
 			this.add(buttonPanel);
 			this.add(gameStatusUpdatePanel);
-			this.add(playerListPanel);
+			//this.add(playerListPanel);
     	}
+		
+		/**
+		 * Needs to be called before switching from the lobby to the main game panel.
+		 */
+		public void init()
+		{
+			this.add(playerListPanel);
+		}
     }
 
     //
@@ -576,7 +610,12 @@ class MyUserInterface extends JFrame implements GameNet_UserInterface, ActionLis
     //
     private class DicePanel extends JPanel
     {
-    	ArrayList<JLabel> heldLabels = new ArrayList<JLabel>(5);
+    	/**
+		 * 
+		 */
+		private static final long serialVersionUID = -1422825607652380712L;
+
+		ArrayList<JLabel> heldLabels = new ArrayList<JLabel>(5);
     	
     	ArrayList<JCheckBox> holdCheckBoxes = new ArrayList<JCheckBox>(5);
     	
@@ -625,9 +664,10 @@ class MyUserInterface extends JFrame implements GameNet_UserInterface, ActionLis
     		}
     	}
     	
-    	public void updateDice()
+    	public void updateDice(DiceSet ds)
     	{
     		// localDiceSet should have been changed
+    		localDiceSet = ds;
     		
     		for (int index = 0; index < 5; index++)
     		{
@@ -645,7 +685,7 @@ class MyUserInterface extends JFrame implements GameNet_UserInterface, ActionLis
     	 */
     	public void setEnabled(boolean value)
     	{
-    		// XXX If clicking on dice images is enables, this will probably need to be changed
+    		// XXX If clicking on dice images is enabled, this will probably need to be changed
     		for (JCheckBox elem : holdCheckBoxes)
     			elem.setEnabled(value);
     	}
@@ -800,11 +840,18 @@ class MyUserInterface extends JFrame implements GameNet_UserInterface, ActionLis
     		rollButton.setToolTipText(
     			"Click to to roll any unheld die");
     		skipButton.setToolTipText(
-    			"CANNOT BE UNDONE");
+    			"Skip your turn");
     		
     		this.add(rollButton);
     		this.add(submitButton);
     		this.add(skipButton);
+    	}
+    	
+    	public void setEnabled(boolean value)
+    	{
+    		rollButton.setEnabled(value);
+    		submitButton.setEnabled(value);
+    		skipButton.setEnabled(value);
     	}
     }
     

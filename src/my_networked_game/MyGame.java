@@ -98,6 +98,8 @@ public class MyGame extends GameNet_CoreGame implements Serializable
         	currentPlayer = playerList.get(0);
         	player = new Player(currentPlayer);
         	
+        	System.out.println(player.getScoreData().isEmpty() ? "GAME_BEGIN: score data is empty" : "GAME_BEGIN: score data is NOT empty");
+        	
         	diceSet = new DiceSet();
         	
         	rollCounter = 0;
@@ -129,7 +131,7 @@ public class MyGame extends GameNet_CoreGame implements Serializable
         case PLAYER_SUBMIT:
         	player = myGameInput.getOriginatingPlayer();
         	diceSet = myGameInput.getCurrentDiceSet();
-        	
+        	// TODO If the player scores a bonus jahtzee, they need another turn to cross out a box.
         	// commit the selected score to the player's scoresheet
         	// set the SELECTED VALUE isUsed = true
         	ScoreSheetBuilder.FinalizeScore(player);

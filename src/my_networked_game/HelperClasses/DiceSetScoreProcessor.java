@@ -13,6 +13,12 @@ public class DiceSetScoreProcessor
 	public static ArrayList<SelectableTextFieldState> processDiceSet(DiceSet diceSet, Player player, boolean isTurnSkip)
 	{
 		ArrayList<SelectableTextFieldState> states = new ArrayList<SelectableTextFieldState>(ScoreTypes.values().length);
+		
+		// TODO Fix properly if time
+		// Lazy bug workaround
+		// I Literally didn't feel like changing and reorganizing the code use states.add instead of states.set
+		for (int i = 0; i < ScoreTypes.values().length; i++)
+			states.add(new SelectableTextFieldState());
 
 		ArrayList<Integer> diceValues = diceSet.getDiceValues();
 
@@ -25,6 +31,8 @@ public class DiceSetScoreProcessor
 
 		// If the field is already used, then we skip it
 
+		System.out.println(states.isEmpty() ? "states is empty" : "states is NOT empty");
+		
 		//ACES(0),
 		states.set(type.ordinal(), processSingleValue(type, player, isTurnSkip, diceValues));
 

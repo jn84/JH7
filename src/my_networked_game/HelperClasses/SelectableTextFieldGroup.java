@@ -3,12 +3,12 @@ package my_networked_game.HelperClasses;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.util.ArrayList;
-import java.util.EventListener;
-import java.util.EventObject;
 import java.util.Iterator;
 
 import my_networked_game.Enums.ScoreTypes;
 import my_networked_game.HelperClasses.SelectableTextFieldState;
+import my_networked_game.Interfaces.SelectableTextFieldEventGenerator;
+import my_networked_game.Interfaces.SelectableTextFieldListener;
 
 public class SelectableTextFieldGroup extends MouseAdapter implements Iterable<SelectableTextField>, SelectableTextFieldEventGenerator
 {
@@ -140,34 +140,3 @@ public class SelectableTextFieldGroup extends MouseAdapter implements Iterable<S
 			selectableTextFieldListeners.add(listener);
 	}
 }
-
-//
-// Events that we can send out if a box is selected.
-//
-
-class SelectableTextFieldEvent extends EventObject
-{
-	boolean isValidSelection = false;
-	
-	public SelectableTextFieldEvent(Object source, boolean validSelection)
-	{
-		super(source);
-		isValidSelection = validSelection;
-	}
-	
-	public boolean getIsValidSelection()
-	{
-		return isValidSelection;
-	}
-}
-
-interface SelectableTextFieldListener extends EventListener
-{
-	public void handleSelectableTextFieldEvent(SelectableTextFieldEvent event);
-}
-
-interface SelectableTextFieldEventGenerator
-{
-	void addSelectableTextFieldEventListener(SelectableTextFieldListener listener);
-}
-

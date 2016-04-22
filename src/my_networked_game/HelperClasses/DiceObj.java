@@ -1,11 +1,14 @@
 package my_networked_game.HelperClasses;
 
+import java.io.Serializable;
 import java.util.Random;
 
 import javax.swing.ImageIcon;
 
-public class DiceObj implements Comparable<DiceObj>
+public class DiceObj implements Comparable<DiceObj>, Serializable
 {
+	private static final long serialVersionUID = -7837440278529266232L;
+
 	private boolean isHeld = false;
 	private int value;
 	

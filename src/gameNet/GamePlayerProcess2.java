@@ -4,7 +4,8 @@ import java.net.*;
 import java.io.*;
 
 
-class GamePlayerProcess2 extends Thread {
+class GamePlayerProcess2 extends Thread 
+{
     GameServer mom;
     Socket sock;
     ObjectInputStream in = null;
@@ -13,7 +14,7 @@ class GamePlayerProcess2 extends Thread {
     GamePlayerProcess2(Socket s, GameServer m, int index)
     {
         sock = s;
-        mom =m;
+        mom = m;
         myIndex = index;
     }
  
@@ -42,7 +43,7 @@ class GamePlayerProcess2 extends Thread {
        catch (Exception e) 
            {
                 System.out.println("GamePlayerProcess2.run Err: " + e);
-                //e.printStackTrace();
+                e.printStackTrace();
            }
        try
        { // I'm annoyed that I need try ... catch to keep the compiler happy here

@@ -74,7 +74,8 @@ public class ScoreSheetBuilder
 		{
 			try
 			{
-				upper_sub_total += Integer.parseInt(states.get(s).fieldValue);
+				if (states.get(s).isUsed)
+					upper_sub_total += Integer.parseInt(states.get(s).fieldValue);
 			}
 			catch (NumberFormatException e) {}
 		}
@@ -105,10 +106,11 @@ public class ScoreSheetBuilder
 		//FINAL_UPPER_GRAND_TOTAL(20),
 		final_upper_grand = upper_grand_total;
 
-
 		//FINAL_LOWER_GRAND_TOTAL(21),   
 		for (int s = ScoreTypes.KIND_3.ordinal(); s <= ScoreTypes.CHANCE.ordinal(); s++)
 		{
+			if (!states.get(s).isUsed)
+				break;
 			try
 			{
 				final_lower_grand += Integer.parseInt(states.get(s).fieldValue);

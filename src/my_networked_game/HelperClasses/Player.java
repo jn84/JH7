@@ -28,6 +28,8 @@ public class Player implements Serializable, Comparable<Player>
 		playerScore = score;
 		
 		scoreData = ScoreSheetBuilder.getNewPlayerScoreSheet();
+		// XXX Debug line: for some reason score data is being lost somewhere
+		System.out.println(scoreData.isEmpty() ? "scoreData is empty" : "scoreData is NOT empty");
 	}
 	
 	/**
@@ -43,8 +45,6 @@ public class Player implements Serializable, Comparable<Player>
 		// this assumes going from first to last element. will it?
 		for (SelectableTextFieldState state : p.scoreData)
 			scoreData.add(new SelectableTextFieldState(state));
-		
-		scoreData = p.scoreData;
 		
 		playerID = p.playerID;
 		playerName = p.playerName;
@@ -97,10 +97,13 @@ public class Player implements Serializable, Comparable<Player>
 	public boolean equals(Object obj)
 	{
 	       if (!(obj instanceof Player))
+	       {
+	    	   System.out.println("Checking instanceof: Passed object is not a Player object");
 	            return false;
-	        if (obj == this)
-	            return true;
+	       }
 
-	        return (((Player)obj).playerID == this.playerID);
+	       System.out.println("Passed Player ID: " + ((Player)obj).playerID);
+	       System.out.println("  This Player ID: " + this.playerID);
+	        return (((Player)obj).playerID.equals(this.playerID));
 	}
 }
