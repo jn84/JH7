@@ -20,10 +20,16 @@ public class DiceSetScoreProcessor
 		for (int i = 0; i < ScoreTypes.values().length; i++)
 			states.add(new SelectableTextFieldState());
 
-		ArrayList<Integer> diceValues = diceSet.getDiceValues();
+		ArrayList<Integer> diceValuesObj = diceSet.getDiceValues();
 
 		// The list should already be sorted, but just in case.
-		Collections.sort(diceValues);
+		Collections.sort(diceValuesObj);
+		
+		// Work with a primitive int array so as to avoid issues with value vs reference variables
+		int[] diceValues = new int[5];
+		
+		for (int i = 0; i < 5; i++)
+			diceValues[i] = diceValuesObj.get(i);
 
 		int sum = sumIntArrayList(diceValues);
 
@@ -64,7 +70,7 @@ public class DiceSetScoreProcessor
 				states.set(type.ordinal(), new SelectableTextFieldState(CROSS_OUT_TEXT, false, true, false));
 			else
 			{
-				if (distinct(diceValues) <= 3 && occurrencesOf(diceValues.get(2), diceValues) >= 3)
+				if (distinct(diceValues) <= 3 && occurrencesOf(diceValues[2], diceValues) >= 3)
 					states.set(type.ordinal(), new SelectableTextFieldState(Integer.toString(sum), false, true, false));					
 				else
 					states.set(type.ordinal(), new SelectableTextFieldState("", false, false, false));
@@ -82,7 +88,7 @@ public class DiceSetScoreProcessor
 				states.set(type.ordinal(), new SelectableTextFieldState(CROSS_OUT_TEXT, false, true, false));
 			else
 			{
-				if (distinct(diceValues) <= 2 && occurrencesOf(diceValues.get(2), diceValues) >= 4)
+				if (distinct(diceValues) <= 2 && occurrencesOf(diceValues[2], diceValues) >= 4)
 					states.set(type.ordinal(), new SelectableTextFieldState(Integer.toString(sum), false, true, false));					
 				else
 					states.set(type.ordinal(), new SelectableTextFieldState("", false, false, false));
@@ -100,7 +106,7 @@ public class DiceSetScoreProcessor
 				states.set(type.ordinal(), new SelectableTextFieldState(CROSS_OUT_TEXT, false, true, false));
 			else
 			{
-				if (distinct(diceValues) == 2 && occurrencesOf(diceValues.get(2), diceValues) == 3)
+				if (distinct(diceValues) == 2 && occurrencesOf(diceValues[2], diceValues) == 3)
 					states.set(type.ordinal(), new SelectableTextFieldState(Integer.toString(25), false, true, false));					
 				else
 					states.set(type.ordinal(), new SelectableTextFieldState("", false, false, false));
@@ -110,16 +116,49 @@ public class DiceSetScoreProcessor
 			states.set(type.ordinal(), player.scoreData.get(type.ordinal()));
 
 
+		
+		
+		//
+		//
+		//
+		//
+		//
+		//
+		//
+		//
+		//
+		//
+		//
+		//
+		//
+		//
+		//
+		//
+		//  REALLY ANALYZE the logic in this method.
+		//
+		//
+		//
+		//
+		//
+		//
+		//
+		//
+		
 		//SMALL_STRAIGHT(12),        
 		type = ScoreTypes.SMALL_STRAIGHT;
 		if (!player.scoreData.get(type.ordinal()).isUsed)
 		{
-			ArrayList<Integer> list = removeDuplicates(diceValues);
+			int[]  list = removeDuplicates(diceValues);
 
 			if (isTurnSkip)
 				states.set(type.ordinal(), new SelectableTextFieldState(CROSS_OUT_TEXT, false, true, false));
-			else if (list.size() >= 4 && isInSequence(list))
-				states.set(type.ordinal(), new SelectableTextFieldState("30", false, true, false));
+			else if (list.length >= 4)
+				{
+					if (isInSequence(getPartialList(list, 0, 3)))
+						states.set(type.ordinal(), new SelectableTextFieldState("30", false, true, false));
+					if (isInSequence(getPartialList(list, 1, 4)))
+						states.set(type.ordinal(), new SelectableTextFieldState("30", false, true, false));
+				}
 			else
 				states.set(type.ordinal(), new SelectableTextFieldState("", false, false, false));
 		}
@@ -130,11 +169,11 @@ public class DiceSetScoreProcessor
 		type = ScoreTypes.LARGE_STRAIGHT;
 		if (!player.scoreData.get(type.ordinal()).isUsed)
 		{
-			ArrayList<Integer> list = removeDuplicates(diceValues);
+			int[] list = removeDuplicates(diceValues);
 
 			if (isTurnSkip)
 				states.set(type.ordinal(), new SelectableTextFieldState(CROSS_OUT_TEXT, false, true, false));
-			else if (list.size() == 5 && isInSequence(list))
+			else if (list.length == 5 && isInSequence(list))
 				states.set(type.ordinal(), new SelectableTextFieldState("40", false, true, false));
 			else
 				states.set(type.ordinal(), new SelectableTextFieldState("", false, false, false));
@@ -245,7 +284,7 @@ public class DiceSetScoreProcessor
 
 	// Utility methods
 	
-	public static SelectableTextFieldState processSingleValue(ScoreTypes type, Player player, boolean isSkip, ArrayList<Integer> diceValues)
+	public static SelectableTextFieldState processSingleValue(ScoreTypes type, Player player, boolean isSkip, int[] diceValues)
 	{
 		if (!player.scoreData.get(type.ordinal()).isUsed)
 		{
@@ -267,7 +306,7 @@ public class DiceSetScoreProcessor
 			return player.scoreData.get(type.ordinal());
 	}
 
-	public static int sumIntArrayList(ArrayList<Integer> list)
+	public static int sumIntArrayList(int[] list)
 	{
 		int sum = 0;
 
@@ -283,7 +322,7 @@ public class DiceSetScoreProcessor
 	 * The list to search through
 	 * @return
 	 */
-	public static int distinct(ArrayList<Integer> list)
+	public static int distinct(int[] list)
 	{
 		int total = 0;
 		int[] counts = new int[] { 0, 0, 0, 0, 0, 0 };
@@ -307,7 +346,7 @@ public class DiceSetScoreProcessor
 	 * The list to search through
 	 * @return
 	 */
-	public static int occurrencesOf(Integer value, ArrayList<Integer> list)
+	public static int occurrencesOf(Integer value, int[] list)
 	{
 		int total = 0;
 		for (Integer elem : list)
@@ -323,16 +362,22 @@ public class DiceSetScoreProcessor
 	 * @return
 	 * The array without duplicates
 	 */
-	public static ArrayList<Integer> removeDuplicates(ArrayList<Integer> list)
+	public static int[] removeDuplicates(int[] list)
 	{
+		int[] tempArray = null;
 		ArrayList<Integer> tempList = new ArrayList<Integer>();
+		
 		for (Integer elem : list)
 			if (!tempList.contains(elem))
 				tempList.add(elem);
-		// Shouldn't be needed, but doing it anyway
-		Collections.sort(tempList);
+		
+		tempArray = new int[tempList.size()];
+		
+		for (int i = 0; i < tempList.size(); i++)
+			tempArray[i] = tempList.get(i);
+		
 
-		return tempList;
+		return tempArray;
 	}
 
 	/**
@@ -344,12 +389,15 @@ public class DiceSetScoreProcessor
 	 * Return false otherwise
 	 * O(n) runtime if returning true 
 	 */
-	public static boolean isInSequence(ArrayList<Integer> list)
+	public static boolean isInSequence(int[] list)
 	{
-		for (int i = 0 ; i < list.size() - 2; i++)
+		for (Integer elem : list)
+			System.out.println(elem + " ");
+		System.out.println();
+		for (int i = 0 ; i < list.length - 1; i++)
 		{
-			System.out.println("Is first inequal to second?: " + list.get(i) + " to " + (list.get(i + 1) - 1));
-			if (list.get(i) != (list.get(i + 1) - 1))
+			System.out.println("Is first inequal to second?: " + list[i] + " to " + (list[i + 1] - 1));
+			if (list[i] != (list[i + 1] - 1))
 			{
 				System.out.println("Comparison was false");
 				return false;
@@ -357,5 +405,47 @@ public class DiceSetScoreProcessor
 		}
 		System.out.println("Comparison was true");
 		return true;
+	}
+	
+	public static int[] getPartialList(int[] list, int beginIndex, int endIndex)
+	{
+		//
+		///
+		//
+		//
+		//
+		///
+		//
+		//
+		//
+		//		at my_networked_game.HelperClasses.DiceSetScoreProcessor.getPartialList(DiceSetScoreProcessor.java:419)
+		//		at my_networked_game.HelperClasses.DiceSetScoreProcessor.processDiceSet(DiceSetScoreProcessor.java:159)
+		//		at my_networked_game.HelperClasses.ScoreSheetBuilder.UpdatePlayerScoreSheet(ScoreSheetBuilder.java:31)
+		//		at my_networked_game.MyGame.process(MyGame.java:124)
+		//		at gameNet.GameServer.putInputMsgs(GameServer.java:46)
+		//		at gameNet.GamePlayerProcess2.run(GamePlayerProcess2.java:35)
+		//
+		//
+		///		THIS LINE: partialList[i] = list[i];
+		///
+		//
+		///
+		//
+		//
+		///
+		//
+		//
+		//
+
+		// Hope this doesn't happen. Will probably cause problems.
+		// There's a million other cases to check for
+		if ((endIndex - beginIndex) < 1 || (endIndex - beginIndex + 1) > list.length)
+			return new int[] { 0 };
+		
+		int[] partialList = new int[endIndex - beginIndex + 1];
+		for (int i = beginIndex; i <= endIndex; i++)
+			partialList[i] = list[i];
+		
+		return partialList;
 	}
 }
