@@ -177,6 +177,9 @@ public class DiceSetScoreProcessor
 		// Jahtzee was used
 		else
 		{
+			// Make sure we copy the original value over to the new array (was a bug)
+			states.set(type.ordinal(), player.scoreData.get(type.ordinal()));
+			
 			// Check if Jahtzee was scored or crossed out and make sure we're not in cross out mode
 			// No crossing out Jahtzee bonuses
 			if (player.scoreData.get(type.ordinal()).fieldValue.equals("50") && !isTurnSkip)
@@ -191,15 +194,15 @@ public class DiceSetScoreProcessor
 					if (!player.scoreData.get(ScoreTypes.JAHTZEE_BONUS_1.ordinal()).isUsed)
 					{
 						states.set(ScoreTypes.JAHTZEE_BONUS_1.ordinal(), new SelectableTextFieldState("X", false, true, false));
-						states.set(ScoreTypes.JAHTZEE_BONUS_1.ordinal(), player.scoreData.get(ScoreTypes.JAHTZEE_BONUS_2.ordinal()));
-						states.set(ScoreTypes.JAHTZEE_BONUS_1.ordinal(), player.scoreData.get(ScoreTypes.JAHTZEE_BONUS_3.ordinal()));
+						states.set(ScoreTypes.JAHTZEE_BONUS_2.ordinal(), player.scoreData.get(ScoreTypes.JAHTZEE_BONUS_2.ordinal()));
+						states.set(ScoreTypes.JAHTZEE_BONUS_3.ordinal(), player.scoreData.get(ScoreTypes.JAHTZEE_BONUS_3.ordinal()));
 					}
 
 					// First bonus used, see if second bonus is used. If not, allow selection and copy old values over 
 					else if (!player.scoreData.get(ScoreTypes.JAHTZEE_BONUS_2.ordinal()).isUsed)
 					{
 						states.set(ScoreTypes.JAHTZEE_BONUS_2.ordinal(), new SelectableTextFieldState("X", false, true, false));
-						states.set(ScoreTypes.JAHTZEE_BONUS_1.ordinal(), player.scoreData.get(ScoreTypes.JAHTZEE_BONUS_2.ordinal()));
+						states.set(ScoreTypes.JAHTZEE_BONUS_1.ordinal(), player.scoreData.get(ScoreTypes.JAHTZEE_BONUS_1.ordinal()));
 						states.set(ScoreTypes.JAHTZEE_BONUS_3.ordinal(), player.scoreData.get(ScoreTypes.JAHTZEE_BONUS_3.ordinal()));
 					}
 					
@@ -207,8 +210,8 @@ public class DiceSetScoreProcessor
 					else if (!player.scoreData.get(ScoreTypes.JAHTZEE_BONUS_3.ordinal()).isUsed)
 					{
 						states.set(ScoreTypes.JAHTZEE_BONUS_3.ordinal(), new SelectableTextFieldState("X", false, true, false));
-						states.set(ScoreTypes.JAHTZEE_BONUS_1.ordinal(), player.scoreData.get(ScoreTypes.JAHTZEE_BONUS_2.ordinal()));
-						states.set(ScoreTypes.JAHTZEE_BONUS_2.ordinal(), player.scoreData.get(ScoreTypes.JAHTZEE_BONUS_3.ordinal()));
+						states.set(ScoreTypes.JAHTZEE_BONUS_1.ordinal(), player.scoreData.get(ScoreTypes.JAHTZEE_BONUS_1.ordinal()));
+						states.set(ScoreTypes.JAHTZEE_BONUS_2.ordinal(), player.scoreData.get(ScoreTypes.JAHTZEE_BONUS_2.ordinal()));
 					}
 					
 					// All bonuses used, copy all old values over to new array
@@ -261,7 +264,7 @@ public class DiceSetScoreProcessor
 			}
 		}
 		else // Preserve the original data
-			return player.scoreData.get(ScoreTypes.ACES.ordinal());
+			return player.scoreData.get(type.ordinal());
 	}
 
 	public static int sumIntArrayList(ArrayList<Integer> list)

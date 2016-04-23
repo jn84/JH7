@@ -16,7 +16,10 @@ public class DiceSet implements Serializable
 	public DiceSet()
 	{
 		for (int i = 0; i < 5; i++)
+		{
 			diceList.add(new DiceObj());
+		}
+			
 		
 		Collections.sort(diceList);
 	}

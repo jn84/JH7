@@ -1,6 +1,7 @@
 package my_networked_game;
 
 import java.io.Serializable;
+import java.time.Year;
 import java.util.ArrayList;
 
 import javax.xml.transform.Templates;
@@ -9,6 +10,7 @@ import gameNet.GameControl;
 import gameNet.GameNet_CoreGame;
 import my_networked_game.Enums.MyGameInputType;
 import my_networked_game.Enums.MyGameOutputType;
+import my_networked_game.Enums.ScoreTypes;
 import my_networked_game.HelperClasses.Player;
 import my_networked_game.HelperClasses.ScoreSheetBuilder;
 
@@ -134,6 +136,19 @@ public class MyGame extends GameNet_CoreGame implements Serializable
         	// TODO If the player scores a bonus jahtzee, they need another turn to cross out a box.
         	// commit the selected score to the player's scoresheet
         	// set the SELECTED VALUE isUsed = true
+
+        	// In the case where a player uses a bonus jahtzee, they need to cross out another box afterwards
+        	// I feel like this code should be somewhere else, but I don't know where
+        	if (player.getScoreData().get(ScoreTypes.JAHTZEE_BONUS_1.ordinal()).isSelected ||
+        		player.getScoreData().get(ScoreTypes.JAHTZEE_BONUS_2.ordinal()).isSelected ||
+        		player.getScoreData().get(ScoreTypes.JAHTZEE_BONUS_3.ordinal()).isSelected)
+        	{
+        		ScoreSheetBuilder.FinalizeScore(player);
+        		ScoreSheetBuilder.UpdatePlayerScoreSheet(diceSet, player, true);
+        		myGameOutput = new MyGameOutput(player, playerList, diceSet, false);
+        		break;
+        	}
+        	
         	ScoreSheetBuilder.FinalizeScore(player);
         	
         	playerList.set(playerList.indexOf(player), player);
@@ -184,17 +199,23 @@ public class MyGame extends GameNet_CoreGame implements Serializable
 		if (isGameEnded)
 			return null;
 		
-		if (currentPlayer == playerList.get(playerList.size() - 1))
+		// If the current player is the last player in the list
+		// We will increment the round number and check if we've reached the end of the game
+		if (currentPlayer.equals(playerList.get(playerList.size() - 1)))
 		{
 			if (++roundCounter > NUMBER_OF_ROUNDS)
 			{
 				isGameEnded = true;
 				return null;
 			}
-			
+			// Return the first player
 			return playerList.get(0);
 		}
-		return playerList.get(playerList.lastIndexOf(currentPlayer) + 1);
+		// Ran into a logic error bug, so check if list size is 1
+		if (playerList.size() == 1)
+			return playerList.get(0);
+		else
+			return playerList.get(playerList.lastIndexOf(currentPlayer) + 1);
 	}
 	
 	@Override

@@ -35,29 +35,52 @@ public class ScoreSheetBuilder
 		player.scoreData = newStates;
 
 	}
-	
+
 	public static void FinalizeScore(Player player)
 	{
-		for (SelectableTextFieldState state : player.scoreData)
+		for (int i = 0; i < player.scoreData.size(); i++)
 		{
-			if (state.isUsed)
+			if (player.scoreData.get(i).isUsed)
 				continue;
 			
-			if (state.isSelected)
+			if (player.scoreData.get(i).isSelected)
 			{
-				state.isUsed = true;
-				state.isSelectable = false;
-				state.isSelected = false;
+				player.scoreData.get(i).isUsed = true;
+				player.scoreData.get(i).isSelectable = false;
+				player.scoreData.get(i).isSelected = false;
 			}
 			
 			else
 			{
-				state.fieldValue = "";
-				state.isSelectable = false;
-				state.isSelected = false;
+				player.scoreData.get(i).fieldValue = "";
+				player.scoreData.get(i).isSelectable = false;
+				player.scoreData.get(i).isSelected = false;
 			}
 		}
 	}
+	
+//	public static void FinalizeScore(Player player)
+//	{
+//		for (SelectableTextFieldState state : player.scoreData)
+//		{
+//			if (state.isUsed)
+//				continue;
+//			
+//			if (state.isSelected)
+//			{
+//				state.isUsed = true;
+//				state.isSelectable = false;
+//				state.isSelected = false;
+//			}
+//			
+//			else
+//			{
+//				state.fieldValue = "";
+//				state.isSelectable = false;
+//				state.isSelected = false;
+//			}
+//		}
+//	}
 	
 	//
 	//
@@ -68,7 +91,7 @@ public class ScoreSheetBuilder
 	//
 	//
 	//
-	//		JKust run the the program and look for straight (4 and 5)
+	//		Just run the the program and look for straight (4 and 5)
 	//
 	//
 	//
@@ -130,7 +153,7 @@ public class ScoreSheetBuilder
 		//FINAL_LOWER_GRAND_TOTAL(21),   
 		for (int s = ScoreTypes.KIND_3.ordinal(); s <= ScoreTypes.CHANCE.ordinal(); s++)
 		{
-			if (states.get(s).isUsed)
+			if (!states.get(s).isUsed)
 				break;
 			try
 			{
@@ -139,9 +162,8 @@ public class ScoreSheetBuilder
 			catch (NumberFormatException e) {}
 		}
 
-
 		//FINAL_GRAND_TOTAL(22);
-		final_grand = final_upper_grand + final_lower_grand;
+		final_grand = final_upper_grand + final_lower_grand + jahtzee_bonus_total;
 
 		states.set(ScoreTypes.UPPER_SUB_TOTAL.ordinal(), new SelectableTextFieldState(Integer.toString(upper_sub_total), false, false, true));
 		states.set(ScoreTypes.UPPER_BONUS.ordinal(), new SelectableTextFieldState(Integer.toString(upper_bonus), false, false, true));

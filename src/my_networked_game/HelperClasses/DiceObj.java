@@ -22,8 +22,11 @@ public class DiceObj implements Comparable<DiceObj>, Serializable
 	public void generateNewValue()
 	{
 		if (isHeld)
+		{
+			isHeld = false;
 			return;
-		value = r.nextInt(6) + 1;
+		}
+		this.reset();
 	}
 	
 	public void setIsHeld(boolean value)
