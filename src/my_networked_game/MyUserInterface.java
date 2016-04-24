@@ -7,6 +7,11 @@ import java.awt.Component;
 import java.awt.GridLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.KeyAdapter;
+import java.awt.event.KeyEvent;
+import java.awt.event.KeyListener;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.util.ArrayList;
@@ -25,11 +30,13 @@ import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTextArea;
+import javax.swing.JTextField;
 import javax.swing.SwingConstants;
 
 import gameNet.GameNet_UserInterface;
 import gameNet.GamePlayer;
 import my_networked_game.Enums.MyGameInputType;
+import my_networked_game.Enums.MyGameOutputType;
 import my_networked_game.Enums.ScoreTypes;
 import my_networked_game.HelperClasses.Player;
 import my_networked_game.HelperClasses.SelectableTextField;
@@ -67,6 +74,8 @@ class MyUserInterface extends JFrame implements GameNet_UserInterface, Selectabl
 	private GamePlayer myGamePlayer;
 
 	private MyGameInput myGameInput;
+	
+	private JTextField inputField = new JTextField();
 
 	private SelectableTextFieldGroup selectableTextFields = new SelectableTextFieldGroup();
 
@@ -84,7 +93,7 @@ class MyUserInterface extends JFrame implements GameNet_UserInterface, Selectabl
 
 	private ButtonPanel buttonPanel = new ButtonPanel();
 
-	private GameStatusUpdatePanel gameStatusUpdatePanel = new GameStatusUpdatePanel();
+	private GameStatusUpdatePanel gameStatusUpdatePanel = new GameStatusUpdatePanel(inputField);
 
 	// Should be last
 	private MainGamePanel mainGamePanel = new MainGamePanel();
@@ -100,6 +109,29 @@ class MyUserInterface extends JFrame implements GameNet_UserInterface, Selectabl
 			{
 				exitProgram();
 			}
+		});
+
+		//
+		//
+		//
+		//
+		//
+		//
+		//	Working on adding messaging
+		//	Whole interface should listen for key presses
+		//		then pass the contents of inputField to the server
+		//		if enter is pressed, and the field is not empty
+		//
+		//
+		//
+		//
+		//
+		//
+		//
+		
+		this.addKeyListener(new KeyAdapter()
+		{
+			
 		});
 	}
 
@@ -149,6 +181,7 @@ class MyUserInterface extends JFrame implements GameNet_UserInterface, Selectabl
 		});
 
 		selectableTextFields.addSelectableTextFieldEventListener(this);
+
 	}
 
 
@@ -159,24 +192,16 @@ class MyUserInterface extends JFrame implements GameNet_UserInterface, Selectabl
 			validScoringPlaySelected();
 	}
 
-
-	//
-	//
-	//
 	//
 	//
 	//		Does the selected state reset after a new turn?
-	//
-	//
-	//
-	//
 	//
 	//
 
 	public void submitClick()
 	{
 		//TODO Define what happens when the submit button is clicked.
-		gameStatusUpdatePanel.addServerOutputText("SUBMIT CLICK!");
+		//gameStatusUpdatePanel.addServerOutputText("SUBMIT CLICK!");
 		myGamePlayer.sendMessage(new MyGameInput(thisPlayer, localDiceSet, MyGameInputType.PLAYER_SUBMIT));
 	}
 
@@ -196,14 +221,14 @@ class MyUserInterface extends JFrame implements GameNet_UserInterface, Selectabl
 		{
 			System.out.println("Turn skipped");
 			// TODO Define what happens when the skip button is clicked.
-			gameStatusUpdatePanel.addServerOutputText("SKIP CLICK!");
+			//gameStatusUpdatePanel.addServerOutputText("SKIP CLICK!");
 			myGamePlayer.sendMessage(new MyGameInput(thisPlayer, localDiceSet, MyGameInputType.PLAYER_SKIP));
 		}
 	}
 
 	public void rollClick()
 	{
-		gameStatusUpdatePanel.addServerOutputText("ROLL CLICK!");
+		//gameStatusUpdatePanel.addServerOutputText("ROLL CLICK!");
 		myGamePlayer.sendMessage(new MyGameInput(thisPlayer, localDiceSet, MyGameInputType.PLAYER_ROLL));
 	}
 
@@ -227,6 +252,9 @@ class MyUserInterface extends JFrame implements GameNet_UserInterface, Selectabl
 		MyGameOutput myGameOutput = (MyGameOutput)ob;
 
 		System.out.println(myGameOutput.getOutputType().toString());
+		
+		if (myGameOutput.getOutputType() != MyGameOutputType.MESSAGE)
+			gameStatusUpdatePanel.addServerOutputText(myGameOutput.getMessage());
 
 		switch (myGameOutput.getOutputType())
 		{
@@ -249,6 +277,9 @@ class MyUserInterface extends JFrame implements GameNet_UserInterface, Selectabl
 			updateInterfaceState(myGameOutput);
 			break;
 		case MESSAGE:
+			// TODO Get sending player
+			gameStatusUpdatePanel.addServerOutputText(
+					"<" + myGameOutput.getMessageSendingPlayer() + "> " + myGameOutput.getMessage());
 			break;
 		default:
 			break;
@@ -271,51 +302,55 @@ class MyUserInterface extends JFrame implements GameNet_UserInterface, Selectabl
 		myGamePlayer.sendMessage(myGameInput);
 	}
 
-
-	//	
-	//	
-	//	Working on processing the server output method (below)
-	//	Interface should be disabled for player who's turn it is NOT
-	//	Focus on interface stuff
-	//	
-
-
 	private void updateInterfaceState(MyGameOutput myGameOutputObj)
 	{
-		isMyTurn = myGameOutputObj.getActivePlayer().equals(thisPlayer);
-		dicePanel.unselectCheckBoxes();
-		
-		System.out.println(isMyTurn ? "It's my turn" : "It's NOT my turn");
+		boolean isGameOver = (myGameOutputObj.getActivePlayer() == null);  
 
-		// It's my turn
-		if (isMyTurn)
+		if (!isGameOver)
 		{
-			thisPlayer = myGameOutputObj.getActivePlayer();
-			updateSelectableTextFields(thisPlayer.getScoreData());
-			dicePanel.updateDice(myGameOutputObj.getDice());
-			dicePanel.setEnabled(true);
+			isMyTurn = myGameOutputObj.getActivePlayer().equals(thisPlayer);
+			dicePanel.unselectCheckBoxes();
 
-			// Maybe we want to make this disabled is the player is currently skipping?
-			skipButton.setEnabled(true);
-			rollButton.setEnabled(myGameOutputObj.canPlayerRollDice());
-			// Submit button should only be enabled once we get the signal from the
-			// scoresheet that a valid selection has been made.
-			// see handleSelectableTextFieldEvent
-			submitButton.setEnabled(false);
+			System.out.println(isMyTurn ? "It's my turn" : "It's NOT my turn");
 
+			// It's my turn
+			if (isMyTurn)
+			{
+				thisPlayer = myGameOutputObj.getActivePlayer();
+				updateSelectableTextFields(thisPlayer.getScoreData());
+				dicePanel.updateDice(myGameOutputObj.getDice());
+				dicePanel.setEnabled(true);
+
+				// Maybe we want to make this disabled is the player is currently skipping?
+				skipButton.setEnabled(true);
+				rollButton.setEnabled(myGameOutputObj.canPlayerRollDice());
+				// Submit button should only be enabled once we get the signal from the
+				// scoresheet that a valid selection has been made.
+				// see handleSelectableTextFieldEvent
+				submitButton.setEnabled(false);
+
+			}
+
+			// It's not my turn
+			else
+			{
+				thisPlayer = myGameOutputObj.getMyPlayer(thisPlayer.getID());
+				updateSelectableTextFields(thisPlayer.getScoreData());
+
+
+				// Disable Dice Panel
+				dicePanel.setEnabled(false);
+				buttonPanel.setEnabled(false);
+
+			}
 		}
-
-		// It's not my turn
+		// Game is over
 		else
 		{
 			thisPlayer = myGameOutputObj.getMyPlayer(thisPlayer.getID());
 			updateSelectableTextFields(thisPlayer.getScoreData());
-			dicePanel.updateDice(myGameOutputObj.getDice());
-
-			// Disable Dice Panel
 			dicePanel.setEnabled(false);
 			buttonPanel.setEnabled(false);
-
 		}
 	}
 
@@ -350,6 +385,10 @@ class MyUserInterface extends JFrame implements GameNet_UserInterface, Selectabl
 
 	private class LobbyPanel extends JPanel
 	{
+		/**
+		 * 
+		 */
+		private static final long serialVersionUID = 274775416214681073L;
 		private JButton btnStartGame = new JButton("Start Game");
 
 		public LobbyPanel()
@@ -610,8 +649,9 @@ class MyUserInterface extends JFrame implements GameNet_UserInterface, Selectabl
 			this.setLayout(new GridLayout(4, 1));
 			this.add(dicePanel);
 			this.add(buttonPanel);
+			// Don't bother trying to reorganize the cells.
+			// playerListPanel needs to be the last one outside of a bunch of code changes
 			this.add(gameStatusUpdatePanel);
-			//this.add(playerListPanel);
 		}
 
 		/**
@@ -755,7 +795,20 @@ class MyUserInterface extends JFrame implements GameNet_UserInterface, Selectabl
 
 			for (int i = 0; i < diceObjPanelList.size(); i++)
 				this.add(diceObjPanelList.get(i));
-
+			
+//			for (DiceObjPanel dPanel : diceObjPanelList)
+//			{
+//				dPanel.addMouseListener(new MouseAdapter()
+//				{
+//					public void MouseClicked(MouseEvent e)
+//					{
+//						for (int i = 0; i < diceObjPanelList.size(); i++)
+//						{
+//							
+//						}
+//					}
+//				});
+//			}
 		}
 
 		public void setSelected(int index, boolean value)
@@ -887,19 +940,23 @@ class MyUserInterface extends JFrame implements GameNet_UserInterface, Selectabl
 		 */
 		private static final long serialVersionUID = -6187609582103465670L;
 		JTextArea textArea = new JTextArea();
+		JTextField inputField = null;
 		JScrollPane scrollPane = new JScrollPane(
 				textArea, 
 				JScrollPane.VERTICAL_SCROLLBAR_ALWAYS, 
 				JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED);
 
-		public GameStatusUpdatePanel()
+		public GameStatusUpdatePanel(JTextField input)
 		{
+			this.inputField = input;
+			
 			this.setLayout(new BorderLayout());
 
 			textArea.setLineWrap(true);
 			textArea.setWrapStyleWord(true);
 
 			this.add(scrollPane, BorderLayout.CENTER);
+			this.add(inputField, BorderLayout.SOUTH);
 		}
 
 		public void addServerOutputText(String text)

@@ -16,7 +16,8 @@ public class MyGameOutput implements Serializable
 	
 	private String outputMessage = "";
 	
-	private Player currentActivePlayer = null;
+	private Player currentActivePlayer = null,
+				   messageSendingPlayer = null;
 
 	private HashMap<String, Player> playerMap = new HashMap<String, Player>();
 	
@@ -95,6 +96,16 @@ public class MyGameOutput implements Serializable
 		
 		this.outputType = MyGameOutputType.GAME_OVER;
 	}
+
+	/**
+	 * Constructor to send a message
+	 * @param message
+	 * Message to send
+	 */
+	public MyGameOutput(String message)
+	{
+		
+	}
 	
 	// added as an afterthought
 	public void setMessage(String message)
@@ -130,5 +141,10 @@ public class MyGameOutput implements Serializable
 	public boolean canPlayerRollDice()
 	{
 		return canRoll;
+	}
+	
+	public String getMessageSendingPlayer()
+	{
+		return messageSendingPlayer.getName();
 	}
 }

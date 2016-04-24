@@ -1,6 +1,8 @@
 package my_networked_game.HelperClasses;
 
+import java.lang.reflect.Array;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 
 import my_networked_game.DiceSet;
@@ -152,13 +154,15 @@ public class DiceSetScoreProcessor
 
 			if (isTurnSkip)
 				states.set(type.ordinal(), new SelectableTextFieldState(CROSS_OUT_TEXT, false, true, false));
-			else if (list.length >= 4)
+			else if (list.length == 5)
 				{
-					if (isInSequence(getPartialList(list, 0, 3)))
+					if (isInSequence(Arrays.copyOfRange(list, 0, 3)))
 						states.set(type.ordinal(), new SelectableTextFieldState("30", false, true, false));
-					if (isInSequence(getPartialList(list, 1, 4)))
+					else if (isInSequence(Arrays.copyOfRange(list, 1, 4)))
 						states.set(type.ordinal(), new SelectableTextFieldState("30", false, true, false));
 				}
+			else if (list.length == 4 && isInSequence(list))
+				states.set(type.ordinal(), new SelectableTextFieldState("30", false, true, false));
 			else
 				states.set(type.ordinal(), new SelectableTextFieldState("", false, false, false));
 		}
@@ -407,45 +411,45 @@ public class DiceSetScoreProcessor
 		return true;
 	}
 	
-	public static int[] getPartialList(int[] list, int beginIndex, int endIndex)
-	{
-		//
-		///
-		//
-		//
-		//
-		///
-		//
-		//
-		//
-		//		at my_networked_game.HelperClasses.DiceSetScoreProcessor.getPartialList(DiceSetScoreProcessor.java:419)
-		//		at my_networked_game.HelperClasses.DiceSetScoreProcessor.processDiceSet(DiceSetScoreProcessor.java:159)
-		//		at my_networked_game.HelperClasses.ScoreSheetBuilder.UpdatePlayerScoreSheet(ScoreSheetBuilder.java:31)
-		//		at my_networked_game.MyGame.process(MyGame.java:124)
-		//		at gameNet.GameServer.putInputMsgs(GameServer.java:46)
-		//		at gameNet.GamePlayerProcess2.run(GamePlayerProcess2.java:35)
-		//
-		//
-		///		THIS LINE: partialList[i] = list[i];
-		///
-		//
-		///
-		//
-		//
-		///
-		//
-		//
-		//
-
-		// Hope this doesn't happen. Will probably cause problems.
-		// There's a million other cases to check for
-		if ((endIndex - beginIndex) < 1 || (endIndex - beginIndex + 1) > list.length)
-			return new int[] { 0 };
-		
-		int[] partialList = new int[endIndex - beginIndex + 1];
-		for (int i = beginIndex; i <= endIndex; i++)
-			partialList[i] = list[i];
-		
-		return partialList;
-	}
+//	public static int[] getPartialList(int[] list, int beginIndex, int endIndex)
+//	{
+//		//
+//		///
+//		//
+//		//
+//		//
+//		///
+//		//
+//		//
+//		//
+//		//		at my_networked_game.HelperClasses.DiceSetScoreProcessor.getPartialList(DiceSetScoreProcessor.java:419)
+//		//		at my_networked_game.HelperClasses.DiceSetScoreProcessor.processDiceSet(DiceSetScoreProcessor.java:159)
+//		//		at my_networked_game.HelperClasses.ScoreSheetBuilder.UpdatePlayerScoreSheet(ScoreSheetBuilder.java:31)
+//		//		at my_networked_game.MyGame.process(MyGame.java:124)
+//		//		at gameNet.GameServer.putInputMsgs(GameServer.java:46)
+//		//		at gameNet.GamePlayerProcess2.run(GamePlayerProcess2.java:35)
+//		//
+//		//
+//		///		THIS LINE: partialList[i] = list[i];
+//		///
+//		//
+//		///
+//		//
+//		//
+//		///
+//		//
+//		//
+//		//
+//
+//		// Hope this doesn't happen. Will probably cause problems.
+//		// There's a million other cases to check for
+//		if ((endIndex - beginIndex) < 1 || (endIndex - beginIndex + 1) > list.length)
+//			return new int[] { 0 };
+//		
+//		int[] partialList = new int[endIndex - beginIndex + 1];
+//		for (int i = beginIndex; i <= endIndex; i++)
+//			partialList[i] = list[i];
+//		
+//		return partialList;
+//	}
 }

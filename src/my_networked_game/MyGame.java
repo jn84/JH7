@@ -64,7 +64,7 @@ public class MyGame extends GameNet_CoreGame implements Serializable
         	
         	// Notify all players
         	myGameOutput = new MyGameOutput(player, MyGameOutputType.PLAYER_REGISTERED);
-        	
+        	myGameOutput.setMessage(player.getName() + " joined the game.");
         	break;
         	
         // A player left the game. Remove them from the player list and move to the next player.
@@ -72,16 +72,18 @@ public class MyGame extends GameNet_CoreGame implements Serializable
         	player = myGameInput.getOriginatingPlayer();
         	
         	if (currentPlayer.equals(player))
+        	{
         		currentPlayer = nextPlayer();
+        		process(new MyGameInput(MyGameInputType.GENERATE_NEW_TURN));
+        	}
         	
         	System.out.println("Player [" + myGameInput.getUsername() + "] left the game");
         	playerList.remove(player);
         	
-        	// recursively call this method t
-        	process(new MyGameInput(MyGameInputType.GENERATE_NEW_TURN));
-        	
         	// update the other players that this player left
         	myGameOutput = new MyGameOutput(player, MyGameOutputType.PLAYER_UNREGISTERED);
+        	myGameOutput.setMessage(player.getName() + " left the game.");
+        	break;
 
         case GENERATE_NEW_TURN:
         	//	Create a copy so we don't modify playerList until the player submits score
@@ -94,6 +96,7 @@ public class MyGame extends GameNet_CoreGame implements Serializable
         	ScoreSheetBuilder.UpdatePlayerScoreSheet(diceSet, player, false);
         	
         	myGameOutput = new MyGameOutput(player, playerList, diceSet, true);
+        	myGameOutput.setMessage("It's now " + player.getName() + "'s turn.");
         	break;
         	
         case GAME_BEGIN:
@@ -138,7 +141,6 @@ public class MyGame extends GameNet_CoreGame implements Serializable
         	// set the SELECTED VALUE isUsed = true
 
         	// In the case where a player uses a bonus jahtzee, they need to cross out another box afterwards
-        	// I feel like this code should be somewhere else, but I don't know where
         	if (player.getScoreData().get(ScoreTypes.JAHTZEE_BONUS_1.ordinal()).isSelected ||
         		player.getScoreData().get(ScoreTypes.JAHTZEE_BONUS_2.ordinal()).isSelected ||
         		player.getScoreData().get(ScoreTypes.JAHTZEE_BONUS_3.ordinal()).isSelected)
@@ -146,6 +148,7 @@ public class MyGame extends GameNet_CoreGame implements Serializable
         		ScoreSheetBuilder.FinalizeScore(player);
         		ScoreSheetBuilder.UpdatePlayerScoreSheet(diceSet, player, true);
         		myGameOutput = new MyGameOutput(player, playerList, diceSet, false);
+        		myGameOutput.setMessage(player.getName() + " has scored a bonus Jahtzee!");
         		break;
         	}
         	
@@ -161,6 +164,7 @@ public class MyGame extends GameNet_CoreGame implements Serializable
         	if (isGameEnded)
         	{
         		myGameOutput = new MyGameOutput(playerList);
+        		myGameOutput.setMessage("The game has ended.");
         	}
         	else
         	{
@@ -174,6 +178,8 @@ public class MyGame extends GameNet_CoreGame implements Serializable
 
         		// build the output object
         		myGameOutput = new MyGameOutput(player, playerList, diceSet, true);
+        		myGameOutput.setMessage(player.getName() + " scored thier play!\n" +
+        							    "It's now " + currentPlayer.getName() + "'s turn!");
         	}
         	break;
         	
@@ -186,6 +192,7 @@ public class MyGame extends GameNet_CoreGame implements Serializable
         	ScoreSheetBuilder.UpdatePlayerScoreSheet(diceSet, player, true);
 
         	myGameOutput = new MyGameOutput(player, playerList, diceSet, false);
+        	myGameOutput.setMessage(player.getName() + " skipped their turn! Please wait while they choose which box to cross out.");
         	break;
 
 		default:
