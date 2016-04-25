@@ -395,61 +395,9 @@ public class DiceSetScoreProcessor
 	 */
 	public static boolean isInSequence(int[] list)
 	{
-		for (Integer elem : list)
-			System.out.println(elem + " ");
-		System.out.println();
 		for (int i = 0 ; i < list.length - 1; i++)
-		{
-			System.out.println("Is first inequal to second?: " + list[i] + " to " + (list[i + 1] - 1));
 			if (list[i] != (list[i + 1] - 1))
-			{
-				System.out.println("Comparison was false");
 				return false;
-			}
-		}
-		System.out.println("Comparison was true");
 		return true;
 	}
-	
-//	public static int[] getPartialList(int[] list, int beginIndex, int endIndex)
-//	{
-//		//
-//		///
-//		//
-//		//
-//		//
-//		///
-//		//
-//		//
-//		//
-//		//		at my_networked_game.HelperClasses.DiceSetScoreProcessor.getPartialList(DiceSetScoreProcessor.java:419)
-//		//		at my_networked_game.HelperClasses.DiceSetScoreProcessor.processDiceSet(DiceSetScoreProcessor.java:159)
-//		//		at my_networked_game.HelperClasses.ScoreSheetBuilder.UpdatePlayerScoreSheet(ScoreSheetBuilder.java:31)
-//		//		at my_networked_game.MyGame.process(MyGame.java:124)
-//		//		at gameNet.GameServer.putInputMsgs(GameServer.java:46)
-//		//		at gameNet.GamePlayerProcess2.run(GamePlayerProcess2.java:35)
-//		//
-//		//
-//		///		THIS LINE: partialList[i] = list[i];
-//		///
-//		//
-//		///
-//		//
-//		//
-//		///
-//		//
-//		//
-//		//
-//
-//		// Hope this doesn't happen. Will probably cause problems.
-//		// There's a million other cases to check for
-//		if ((endIndex - beginIndex) < 1 || (endIndex - beginIndex + 1) > list.length)
-//			return new int[] { 0 };
-//		
-//		int[] partialList = new int[endIndex - beginIndex + 1];
-//		for (int i = beginIndex; i <= endIndex; i++)
-//			partialList[i] = list[i];
-//		
-//		return partialList;
-//	}
 }

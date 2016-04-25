@@ -11,6 +11,7 @@ import gameNet.GameNet_CoreGame;
 import my_networked_game.Enums.MyGameInputType;
 import my_networked_game.Enums.MyGameOutputType;
 import my_networked_game.Enums.ScoreTypes;
+import my_networked_game.HelperClasses.DiceObj;
 import my_networked_game.HelperClasses.Player;
 import my_networked_game.HelperClasses.ScoreSheetBuilder;
 
@@ -24,9 +25,13 @@ public class MyGame extends GameNet_CoreGame implements Serializable
 	
 	private Player currentPlayer = null;
 	
-	private int roundCounter = 0;
+	private GameControl gameControl = null;
 	
-	private boolean isGameEnded = false;
+	private int roundCounter = 0,
+				rollCounter = 0;
+	
+	private boolean isGameEnded = false,
+					isGameInProgress = false;
 	
 	public MyGame()
 	{
@@ -44,15 +49,14 @@ public class MyGame extends GameNet_CoreGame implements Serializable
 	{
         MyGameInput myGameInput = (MyGameInput)inputObj;
         
+        System.out.println("Got input: " + myGameInput.getInputType().toString());
+        
         MyGameOutput myGameOutput = null;
         
-        Player player = null;
+        Player player = null,
+        	   quittingPlayer = null;
         
         DiceSet diceSet = null;
-        
-        int rollCounter = 0;
-        
-        
         
         switch (myGameInput.getInputType())
         {
@@ -64,32 +68,45 @@ public class MyGame extends GameNet_CoreGame implements Serializable
         	
         	// Notify all players
         	myGameOutput = new MyGameOutput(player, MyGameOutputType.PLAYER_REGISTERED);
-        	process(new MyGameOutput(playerList, MyGameOutputType.UPDATE_PLAYERS));
+        	gameControl.putMsgs(new MyGameOutput(playerList, MyGameOutputType.UPDATE_PLAYERS));
         	myGameOutput.setMessage(player.getName() + " joined the game.");
         	break;
         	
         // A player left the game. Remove them from the player list and move to the next player.
         case UNREGISTER_PLAYER:
-        	player = myGameInput.getOriginatingPlayer();
         	
-        	if (currentPlayer.equals(player))
+        	boolean didActivePlayerLeave = false;
+        	
+        	System.out.println("Got the unregister notification");
+        	player = myGameInput.getOriginatingPlayer();
+        	quittingPlayer = new Player(player);
+        	if (currentPlayer != null && currentPlayer.equals(player) && isGameInProgress)
         	{
+        		didActivePlayerLeave = true;
+        		System.out.println("The player that quit WAS the active player");
+        		System.out.println(currentPlayer.getName() + " is LEAVING THE GAME");
         		currentPlayer = nextPlayer();
-        		process(new MyGameInput(MyGameInputType.GENERATE_NEW_TURN));
+        		System.out.println(currentPlayer.getName() + " is THE NEW ACTIVE PLAYER");
+        		gameControl.putMsgs(generateNewTurn(myGameInput));
         	}
+        	else
+        		System.out.println("The player that quit was NOT the active player");
         	
         	System.out.println("Player [" + myGameInput.getUsername() + "] left the game");
         	playerList.remove(player);
         	
         	// update the other players that this player left
-        	myGameOutput = new MyGameOutput(player, MyGameOutputType.PLAYER_UNREGISTERED);
-        	process(new MyGameOutput(playerList, MyGameOutputType.UPDATE_PLAYERS));
-        	myGameOutput.setMessage(player.getName() + " left the game.");
+        	myGameOutput = new MyGameOutput(quittingPlayer, MyGameOutputType.PLAYER_UNREGISTERED);
+        	
+        	gameControl.putMsgs(new MyGameOutput(playerList, MyGameOutputType.UPDATE_PLAYERS));
+        	myGameOutput.setMessage(quittingPlayer.getName() + " left the game.");
         	break;
 
         case GENERATE_NEW_TURN:
         	//	Create a copy so we don't modify playerList until the player submits score
         	player = new Player(currentPlayer);
+        	
+        	System.out.println("currentplayer is: " + currentPlayer.getName());
         	
         	diceSet = new DiceSet();
         	
@@ -102,10 +119,9 @@ public class MyGame extends GameNet_CoreGame implements Serializable
         	break;
         	
         case GAME_BEGIN:
+        	isGameInProgress = true;
         	currentPlayer = playerList.get(0);
         	player = new Player(currentPlayer);
-        	
-        	System.out.println(player.getScoreData().isEmpty() ? "GAME_BEGIN: score data is empty" : "GAME_BEGIN: score data is NOT empty");
         	
         	diceSet = new DiceSet();
         	
@@ -117,8 +133,14 @@ public class MyGame extends GameNet_CoreGame implements Serializable
         	break;
         	
         case PLAYER_ROLL:
+        	int holdCount = 0;
+        	
         	player = myGameInput.getOriginatingPlayer();
         	diceSet = myGameInput.getCurrentDiceSet();
+        	
+        	for (DiceObj elem : diceSet.getDice())
+        		if (elem.isHeld())
+        			holdCount++;
         	
         	// roll the unheld dice
         	diceSet.roll();
@@ -133,6 +155,10 @@ public class MyGame extends GameNet_CoreGame implements Serializable
         	
         	// build the output object
         	myGameOutput = new MyGameOutput(player, playerList, diceSet, rollCounter != 2);
+        	if (rollCounter != 2)
+        		myGameOutput.setMessage(player.getName() + " held " + holdCount + " die and rolled.");
+        	else 
+        		myGameOutput.setMessage(player.getName() + " held " + holdCount + " die for their final roll.");
         	break;
         	
         case PLAYER_SUBMIT:
@@ -157,11 +183,14 @@ public class MyGame extends GameNet_CoreGame implements Serializable
         	ScoreSheetBuilder.FinalizeScore(player);
         	
         	playerList.set(playerList.indexOf(player), player);
-        	
+
         	// go to the next player: currentPlayer = nextPlayer()
         	// generate a new set of dice
         	// reset the roll counter
         	currentPlayer = nextPlayer();
+        	
+        	String msg = player.getName() + " scored their play!\n" +
+				    "It's now " + currentPlayer.getName() + "'s turn!";
         	
         	if (isGameEnded)
         	{
@@ -180,8 +209,7 @@ public class MyGame extends GameNet_CoreGame implements Serializable
 
         		// build the output object
         		myGameOutput = new MyGameOutput(player, playerList, diceSet, true);
-        		myGameOutput.setMessage(player.getName() + " scored thier play!\n" +
-        							    "It's now " + currentPlayer.getName() + "'s turn!");
+        		myGameOutput.setMessage(msg);
         	}
         	break;
         	
@@ -208,6 +236,25 @@ public class MyGame extends GameNet_CoreGame implements Serializable
 			break; 	
         }
         return myGameOutput;
+	}
+	
+	private MyGameOutput generateNewTurn(MyGameInput input)
+	{
+		MyGameOutput myGameOutput = null; 
+		Player player = null;
+		DiceSet diceSet = null;
+		
+    	player = new Player(currentPlayer);
+    	
+    	diceSet = new DiceSet();
+    	
+    	rollCounter = 0;
+    	// We use currentPlayer because it's a new turn
+    	ScoreSheetBuilder.UpdatePlayerScoreSheet(diceSet, player, false);
+    	
+    	myGameOutput = new MyGameOutput(player, playerList, diceSet, true);
+    	myGameOutput.setMessage("It's now " + player.getName() + "'s turn.");
+    	return myGameOutput;
 	}
 	
 	private Player nextPlayer()
@@ -237,6 +284,6 @@ public class MyGame extends GameNet_CoreGame implements Serializable
 	@Override
 	public void startGame (GameControl gameControl)
 	{
-		
+		this.gameControl = gameControl;
 	}
 }

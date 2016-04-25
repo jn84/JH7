@@ -47,6 +47,8 @@ class GameServer extends Thread{
         if (ob2 != null) 
             putOutputMsgs(ob2);
     }
+    
+    
     synchronized void putOutputMsgs(Object ob)
     {
         for (int i=0; i < gamePlayers.size(); i++)

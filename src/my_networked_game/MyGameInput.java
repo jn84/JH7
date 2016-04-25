@@ -90,15 +90,16 @@ public class MyGameInput implements Serializable
 
 	//		GENERATE_NEW_TURN needs
 	//			inputType (GENERATE_NEW_TURN)
+	//	    
 	/**
 	 * Use to generate new turn (only used internally by MyGame)
 	 * @param type 
-	 * Irrelevant. Parameter exists to differentiate constructors.
-	 * Can be null
+	 * GENERATE_NEW_TURN or UPDATE_PLAYERS
+	 * 
 	 */
 	public MyGameInput(MyGameInputType type)
 	{
-		inputType = MyGameInputType.GENERATE_NEW_TURN;
+		inputType = type;
 	}
 	
 	// 	MESSAGE needs

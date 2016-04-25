@@ -19,6 +19,7 @@ import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.security.KeyStore.Entry;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.Map;
 import java.util.Random;
 
@@ -146,6 +147,7 @@ class MyUserInterface extends JFrame implements GameNet_UserInterface, Selectabl
 	{
 		myGamePlayer = player;
 		registerPlayer();
+		myGamePlayer.sendMessage(new MyGameInput(MyGameInputType.UPDATE_PLAYERS));
 
 		// Boring screen things 
 		this.myLayout();
@@ -288,10 +290,7 @@ class MyUserInterface extends JFrame implements GameNet_UserInterface, Selectabl
 			gameStatusUpdatePanel.addServerOutputText(
 					"<" + myGameOutput.getMessageSendingPlayer() + "> " + myGameOutput.getMessage());
 		case UPDATE_PLAYERS:
-			for (Map.Entry<String, Player> elem : myGameOutput.getPlayersMap().entrySet())
-			{
-				if (playerListPanel.)
-			}
+			playerListPanel.updatePlayers(myGameOutput.getPlayersMap());
 			break;
 		default:
 			break;
@@ -461,7 +460,7 @@ class MyUserInterface extends JFrame implements GameNet_UserInterface, Selectabl
 		//
 		
 		
-		public PlayerListPanel(JList<Player> playerList)
+		public PlayerListPanel()
 		{
 			super();
 			lstPlayers.setCellRenderer(new PlayerListRenderer());
@@ -494,6 +493,16 @@ class MyUserInterface extends JFrame implements GameNet_UserInterface, Selectabl
 			// We can use indexOf since equals is defined in the Player class
 			modelPlayers.set(modelPlayers.indexOf(p), p);
 		}
+		
+		public void updatePlayers(HashMap<String, Player> map)
+		{
+			for (Map.Entry<String, Player> elem : map.entrySet())
+			{
+				this.addPlayer(elem.getValue());
+				this.updatePlayer(elem.getValue());
+			}
+		}
+		
 
 		class PlayerListRenderer extends DefaultListCellRenderer
 		{
@@ -503,7 +512,7 @@ class MyUserInterface extends JFrame implements GameNet_UserInterface, Selectabl
 			 */
 			private static final long serialVersionUID = -5399505231573174050L;
 
-			public Component getListCellRendererComponent(JList list, Object playerObj, int index, boolean isSelected, boolean cellHasFocus)
+			public Component getListCellRendererComponent(JList<?> list, Object playerObj, int index, boolean isSelected, boolean cellHasFocus)
 			{
 				super.getListCellRendererComponent(list, playerObj, index, isSelected, cellHasFocus);
 
