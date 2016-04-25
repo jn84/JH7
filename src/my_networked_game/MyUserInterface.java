@@ -442,6 +442,25 @@ class MyUserInterface extends JFrame implements GameNet_UserInterface, Selectabl
 
 		private JList<Player> lstPlayers = new JList<Player>(modelPlayers);
 
+		//
+		//
+		//
+		//
+		//
+		//
+		//	Player list doesn't show players that had already joined for client players
+		//	Working on that
+		//
+		//
+		//
+		//
+		//
+		//
+		//
+		//
+		//
+		
+		
 		public PlayerListPanel(JList<Player> playerList)
 		{
 			super();
