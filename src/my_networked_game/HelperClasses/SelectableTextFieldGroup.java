@@ -28,9 +28,9 @@ public class SelectableTextFieldGroup extends MouseAdapter implements Iterable<S
 				new MouseAdapter()
 				{
 					@Override
-					public void mouseClicked(MouseEvent e)
+					public void mousePressed(MouseEvent e)
 					{
-						super.mouseClicked(e);
+						super.mousePressed(e);
 						processClick(e);
 					}
 				}

@@ -1,6 +1,7 @@
 package my_networked_game.HelperClasses;
 
 import java.io.Serializable;
+import java.security.SecureRandom;
 import java.util.Random;
 
 import javax.swing.ImageIcon;
@@ -12,7 +13,7 @@ public class DiceObj implements Comparable<DiceObj>, Serializable
 	private boolean isHeld = false;
 	private int value;
 	
-	Random r = new Random();
+	SecureRandom r = new SecureRandom();
 	
 	public DiceObj()
 	{

@@ -14,10 +14,11 @@ public class MyGameOutput implements Serializable
 
 	private MyGameOutputType outputType = null;
 	
-	private String outputMessage = "";
-	
-	private Player currentActivePlayer = null,
+	private String outputMessage = "",
 				   messageSendingPlayer = null;
+	
+	private Player currentActivePlayer = null;
+
 
 	private HashMap<String, Player> playerMap = new HashMap<String, Player>();
 	
@@ -89,12 +90,12 @@ public class MyGameOutput implements Serializable
 	/**
 	 * Game over constructor
 	 */
-	public MyGameOutput(ArrayList<Player> playerList)
+	public MyGameOutput(ArrayList<Player> playerList, MyGameOutputType type)
 	{
 		for (Player elem : playerList)
 			playerMap.put(elem.getID(), elem);
 		
-		this.outputType = MyGameOutputType.GAME_OVER;
+		this.outputType = type;
 	}
 
 	/**
@@ -102,10 +103,14 @@ public class MyGameOutput implements Serializable
 	 * @param message
 	 * Message to send
 	 */
-	public MyGameOutput(String message)
+	public MyGameOutput(String playerName, String message)
 	{
-		
+		this.messageSendingPlayer = playerName;
+		this.outputMessage = message;
+		this.outputType = MyGameOutputType.MESSAGE;
 	}
+	
+	
 	
 	// added as an afterthought
 	public void setMessage(String message)
@@ -145,6 +150,12 @@ public class MyGameOutput implements Serializable
 	
 	public String getMessageSendingPlayer()
 	{
-		return messageSendingPlayer.getName();
+		return messageSendingPlayer;
+	}
+	
+	// Turns out we do need this.
+	public HashMap<String, Player> getPlayersMap()
+	{
+		return playerMap;
 	}
 }

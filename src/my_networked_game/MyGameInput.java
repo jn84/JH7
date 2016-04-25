@@ -9,7 +9,6 @@ import my_networked_game.HelperClasses.Player;
 public class MyGameInput implements Serializable
 {
 	private static final long serialVersionUID = -6571379737191829342L;
-
 	private MyGameInputType inputType = null;
 	// populate with data from the user interface
 	private DiceSet diceSet = null;
@@ -142,6 +141,11 @@ public class MyGameInput implements Serializable
 	public Player getOriginatingPlayer()
 	{
 		return originatingPlayer;
+	}
+	
+	public String getOriginatingPlayerName()
+	{
+		return originatingName;
 	}
 	
 	public DiceSet getCurrentDiceSet()

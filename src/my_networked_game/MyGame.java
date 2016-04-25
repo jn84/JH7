@@ -64,6 +64,7 @@ public class MyGame extends GameNet_CoreGame implements Serializable
         	
         	// Notify all players
         	myGameOutput = new MyGameOutput(player, MyGameOutputType.PLAYER_REGISTERED);
+        	process(new MyGameOutput(playerList, MyGameOutputType.UPDATE_PLAYERS));
         	myGameOutput.setMessage(player.getName() + " joined the game.");
         	break;
         	
@@ -82,6 +83,7 @@ public class MyGame extends GameNet_CoreGame implements Serializable
         	
         	// update the other players that this player left
         	myGameOutput = new MyGameOutput(player, MyGameOutputType.PLAYER_UNREGISTERED);
+        	process(new MyGameOutput(playerList, MyGameOutputType.UPDATE_PLAYERS));
         	myGameOutput.setMessage(player.getName() + " left the game.");
         	break;
 
@@ -163,7 +165,7 @@ public class MyGame extends GameNet_CoreGame implements Serializable
         	
         	if (isGameEnded)
         	{
-        		myGameOutput = new MyGameOutput(playerList);
+        		myGameOutput = new MyGameOutput(playerList, MyGameOutputType.GAME_OVER);
         		myGameOutput.setMessage("The game has ended.");
         	}
         	else
@@ -194,6 +196,13 @@ public class MyGame extends GameNet_CoreGame implements Serializable
         	myGameOutput = new MyGameOutput(player, playerList, diceSet, false);
         	myGameOutput.setMessage(player.getName() + " skipped their turn! Please wait while they choose which box to cross out.");
         	break;
+        	
+        case MESSAGE:
+        	myGameOutput = new MyGameOutput(myGameInput.getOriginatingPlayerName(), myGameInput.getMessage());
+        	break;
+        	
+        case UPDATE_PLAYERS:
+        	myGameOutput = new MyGameOutput(playerList, MyGameOutputType.UPDATE_PLAYERS);
 
 		default:
 			break; 	
