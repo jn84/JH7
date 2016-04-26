@@ -59,6 +59,29 @@ public class MyGame extends GameNet_CoreGame implements Serializable
         
         DiceSet diceSet = null;
         
+        //
+        //
+        //
+        //
+        //
+        //
+        //
+        // nextPlayer has an issue when the active player quits
+        // nextPlayer might not always work.. nextPlayer might sometimes skip valid players
+        //		hard to reproduce!!!!!!!!!!!!!!!!!
+        //
+        //
+        //
+        //
+        //
+        //
+        //
+        //
+        //
+        //
+        //
+        
+        System.out.println("Doing: " + myGameInput.getInputType().toString());
         switch (myGameInput.getInputType())
         {
         case REGISTER_PLAYER:
@@ -89,16 +112,23 @@ public class MyGame extends GameNet_CoreGame implements Serializable
         // A player left the game. Remove them from the player list and move to the next player.
         case UNREGISTER_PLAYER:
         	
-        	boolean didActivePlayerLeave = false;
+
         	
         	player = myGameInput.getOriginatingPlayer();
         	quittingPlayer = new Player(player);
-        	if (currentPlayer != null && currentPlayer.equals(player) && isGameInProgress)
+        	
+        	boolean didActivePlayerLeave = currentPlayer.equals(player) && isGameInProgress;
+        	
+        	if (didActivePlayerLeave)
         	{
-        		didActivePlayerLeave = true;
         		if (currentPlayer != null)
-        			while (!currentPlayer.isSpectator())
+        		{
+        			// NPE when the active player leaves!
+//        			if (currentPlayer == null)
+//        				System.out.println("currentPlayer is NULL");
+        			while (currentPlayer.isSpectator())
         				currentPlayer = nextPlayer();
+        		}
         		else 
         			currentPlayer = nextPlayer();
         		gameControl.putMsgs(generateNewTurn(myGameInput));
@@ -109,8 +139,6 @@ public class MyGame extends GameNet_CoreGame implements Serializable
         	
         	// update the other players that this player left
         	myGameOutput = new MyGameOutput(quittingPlayer, MyGameOutputType.PLAYER_UNREGISTERED);
-        	
-        	gameControl.putMsgs(new MyGameOutput(playerList, MyGameOutputType.UPDATE_PLAYERS));
         	myGameOutput.setMessage(quittingPlayer.getName() + " left the game.");
         	break;
 

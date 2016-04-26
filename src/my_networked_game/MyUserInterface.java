@@ -277,14 +277,21 @@ class MyUserInterface extends JFrame implements GameNet_UserInterface, Selectabl
 		{
 		case PLAYER_REGISTERED:
 			playerListPanel.addPlayer(myGameOutput.getActivePlayer());
-			if (myGameOutput.getActivePlayer().getIsHost())
-				lobbyPanel.btnStartGame.setEnabled(true);
-			else
-				lobbyPanel.btnStartGame.setEnabled(false);
+			System.out.println("Reg Player Name:  " + myGameOutput.getActivePlayer().getName());
+			System.out.println("This Player Name: " + thisPlayer.getName());
+//			if (!thisPlayer.getName().equals(myGameOutput.getActivePlayer().getName()))
+//				lobbyPanel.btnStartGame.setEnabled(true);
+//			else
+//				lobbyPanel.btnStartGame.setEnabled(false);
+			lobbyPanel.btnStartGame.
+				setEnabled(
+						!thisPlayer.getName().equals(myGameOutput.getActivePlayer().getName()));
+			
 
 			break;
 		case PLAYER_UNREGISTERED:
 			playerListPanel.removePlayer(myGameOutput.getActivePlayer());
+			myGamePlayer.sendMessage(new MyGameInput(MyGameInputType.UPDATE_PLAYERS));
 			break;
 		case GAME_BEGIN:
 
