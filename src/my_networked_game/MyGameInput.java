@@ -19,6 +19,10 @@ public class MyGameInput implements Serializable
 	private Player originatingPlayer = null;
 	
 	private String playerMessage = null;
+	
+	private int diceObjIndex = -1;
+	
+	private boolean diceObjSelected = false;
 
 
 	//	GAME_BEGIN
@@ -119,6 +123,25 @@ public class MyGameInput implements Serializable
 		inputType = MyGameInputType.MESSAGE;
 	}
 	
+	public MyGameInput(int index, boolean value)
+	{
+		diceObjIndex = index;
+		diceObjSelected = value;
+		this.inputType = MyGameInputType.DICE_HOLD_CHANGED;
+	}
+	
+	
+//	/**
+//	 * Send to server: update the Dice Set for each player (including which are held)
+//	 * @param diceSet
+//	 * The set of dice for players to update to
+//	 */
+//	public MyGameInput(DiceSet diceSet)
+//	{
+//		this.diceSet = diceSet;
+//		this.inputType = MyGameInputType.DICE_HOLD_CHANGED;
+//	}
+	
 	public MyGameInputType getInputType()
 	{
 		return inputType;
@@ -152,5 +175,15 @@ public class MyGameInput implements Serializable
 	public DiceSet getCurrentDiceSet()
 	{
 		return diceSet;
+	}
+	
+	public int getDiceHeldChangedIndex()
+	{
+		return diceObjIndex;
+	}
+	
+	public boolean isDiceObjHeld()
+	{
+		return diceObjSelected;
 	}
 }

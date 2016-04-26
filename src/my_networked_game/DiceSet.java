@@ -41,7 +41,6 @@ public class DiceSet implements Serializable
 		diceList.get(index).setIsHeld(value);
 	}
 	
-	// XXX DEPRECATED Pass this return value to the score verifier/parser
 	public ArrayList<Integer> getDiceValues()
 	{
 		ArrayList<Integer> diceValues = new ArrayList<Integer>();

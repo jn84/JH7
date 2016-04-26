@@ -22,6 +22,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Random;
+import java.util.StringTokenizer;
 
 import javax.lang.model.element.Element;
 import javax.swing.DefaultListCellRenderer;
@@ -38,8 +39,11 @@ import javax.swing.JScrollPane;
 import javax.swing.JTextArea;
 import javax.swing.JTextField;
 import javax.swing.SwingConstants;
+import javax.swing.SwingUtilities;
 import javax.swing.border.Border;
 import javax.swing.border.EmptyBorder;
+
+import org.omg.CORBA.PUBLIC_MEMBER;
 
 import gameNet.GameNet_UserInterface;
 import gameNet.GamePlayer;
@@ -72,7 +76,8 @@ class MyUserInterface extends JFrame implements GameNet_UserInterface, Selectabl
 							 dieDefault_6 = new ImageIcon(MyMain.class.getResource("/resources/Six.png")),
 							 dieBlank 	  = new ImageIcon(MyMain.class.getResource("/resources/Blank.png"));
 
-	private boolean isMyTurn = false;
+	private boolean isMyTurn = false,
+					gameBegan = false;
 
 	private CardLayout mainPanelLayout = new CardLayout();
 
@@ -82,8 +87,6 @@ class MyUserInterface extends JFrame implements GameNet_UserInterface, Selectabl
 
 	private GamePlayer myGamePlayer;
 
-	private MyGameInput myGameInput;
-	
 	private JTextField inputField = new JTextField();
 
 	private SelectableTextFieldGroup selectableTextFields = new SelectableTextFieldGroup();
@@ -136,6 +139,8 @@ class MyUserInterface extends JFrame implements GameNet_UserInterface, Selectabl
 			@Override
 			public void actionPerformed(ActionEvent e)
 			{
+				if (inputField.getText().equals(""))
+					return;
 				myGamePlayer.sendMessage(new MyGameInput(thisPlayer.getName(), inputField.getText()));
 				inputField.setText("");				
 			}
@@ -152,7 +157,9 @@ class MyUserInterface extends JFrame implements GameNet_UserInterface, Selectabl
 		// Boring screen things 
 		this.myLayout();
 		//this.add(mainGamePanel, BorderLayout.CENTER);
+		lobbyPanel.setName(lobbyPanelID);
 		this.mainPanel.add(lobbyPanel, lobbyPanelID);
+		mainPanel.setName(mainGamePanelID);
 		this.mainPanel.add(mainGamePanel, mainGamePanelID);
 		this.add(mainPanel);
 		mainPanelLayout.show(mainPanel, lobbyPanelID);
@@ -208,8 +215,6 @@ class MyUserInterface extends JFrame implements GameNet_UserInterface, Selectabl
 
 	public void submitClick()
 	{
-		//TODO Define what happens when the submit button is clicked.
-		//gameStatusUpdatePanel.addServerOutputText("SUBMIT CLICK!");
 		myGamePlayer.sendMessage(new MyGameInput(thisPlayer, localDiceSet, MyGameInputType.PLAYER_SUBMIT));
 	}
 
@@ -221,17 +226,9 @@ class MyUserInterface extends JFrame implements GameNet_UserInterface, Selectabl
 				"Confirm Skip Turn", 
 				JOptionPane.YES_NO_OPTION);
 		if (confirmResult != JOptionPane.YES_OPTION)
-		{
-			System.out.println("Skip aborted");
 			return;
-		}
 		else
-		{
-			System.out.println("Turn skipped");
-			// TODO Define what happens when the skip button is clicked.
-			//gameStatusUpdatePanel.addServerOutputText("SKIP CLICK!");
 			myGamePlayer.sendMessage(new MyGameInput(thisPlayer, localDiceSet, MyGameInputType.PLAYER_SKIP));
-		}
 	}
 
 	public void rollClick()
@@ -251,16 +248,28 @@ class MyUserInterface extends JFrame implements GameNet_UserInterface, Selectabl
 	public void registerPlayer()
 	{
 		Random r = new Random();
-		thisPlayer = new Player(myGamePlayer.getPlayerName(), Integer.toString(r.nextInt(100000000)), 0); 
+		thisPlayer = new Player(myGamePlayer.getPlayerName(), Integer.toString(r.nextInt(100000000)), 0);
 		myGamePlayer.sendMessage(new MyGameInput(thisPlayer, MyGameInputType.REGISTER_PLAYER));
 	}
 
 	public void receivedMessage(Object ob)
 	{
 		MyGameOutput myGameOutput = (MyGameOutput)ob;
-
-		System.out.println(myGameOutput.getOutputType().toString());
 		
+		Runnable doGameBegin = new Runnable()
+		{
+			
+			@Override
+			public void run()
+			{
+				gameBegan = true;
+				mainGamePanel.init();
+				mainPanelLayout.show(mainPanel, mainGamePanelID);
+				inputField.grabFocus();
+				updateInterfaceState(myGameOutput);
+			}
+		};
+
 		if (myGameOutput.getOutputType() != MyGameOutputType.MESSAGE && !myGameOutput.getMessage().equals(""))
 			gameStatusUpdatePanel.addServerOutputText(myGameOutput.getMessage());
 
@@ -268,17 +277,26 @@ class MyUserInterface extends JFrame implements GameNet_UserInterface, Selectabl
 		{
 		case PLAYER_REGISTERED:
 			playerListPanel.addPlayer(myGameOutput.getActivePlayer());
+			if (myGameOutput.getActivePlayer().getIsHost())
+				lobbyPanel.btnStartGame.setEnabled(true);
+			else
+				lobbyPanel.btnStartGame.setEnabled(false);
 
 			break;
 		case PLAYER_UNREGISTERED:
 			playerListPanel.removePlayer(myGameOutput.getActivePlayer());
 			break;
 		case GAME_BEGIN:
-			mainGamePanel.init();
-			mainPanelLayout.show(mainPanel, mainGamePanelID);
-			inputField.grabFocus();
-			updateInterfaceState(myGameOutput);
-			break;
+
+			// This portion of code is so that each client window will only process GAME_BEGIN once
+			// Spectators will need their own special GAME_BEGIN object to move on from the lobby window
+			if (gameBegan)
+				break;
+			
+			// Will invoke only after all other UI elements have been updated
+			// If we don't do this, sometimes, because of the timings, the game window will not switch from the lobby 
+			SwingUtilities.invokeLater(doGameBegin);
+			
 		case MAIN_GAME:
 			updateInterfaceState(myGameOutput);
 			break;
@@ -286,31 +304,18 @@ class MyUserInterface extends JFrame implements GameNet_UserInterface, Selectabl
 			updateInterfaceState(myGameOutput);
 			break;
 		case MESSAGE:
-			// TODO Get sending player
 			gameStatusUpdatePanel.addServerOutputText(
 					"<" + myGameOutput.getMessageSendingPlayer() + "> " + myGameOutput.getMessage());
+			break;
 		case UPDATE_PLAYERS:
 			playerListPanel.updatePlayers(myGameOutput.getPlayersMap());
 			break;
+		case DICE_HOLD_CHANGED:
+			dicePanel.updateDie(myGameOutput.getDieHoldIndex(), myGameOutput.getIsDieHeld());
 		default:
 			break;
 
 		}
-	}
-
-	public void generateInput(MyGameInputType type)
-	{
-		myGameInput = new MyGameInput(type);
-
-		//    	switch (type)
-		//    	{
-		//    	case BEGIN_GAME:
-		//    		break;
-		//    	default:
-		//    		break;
-		//    	}
-
-		myGamePlayer.sendMessage(myGameInput);
 	}
 
 	private void updateInterfaceState(MyGameOutput myGameOutputObj)
@@ -331,8 +336,6 @@ class MyUserInterface extends JFrame implements GameNet_UserInterface, Selectabl
 		{
 			isMyTurn = myGameOutputObj.getActivePlayer().equals(thisPlayer);
 			dicePanel.resetDicePanels();
-
-			System.out.println(isMyTurn ? "It's my turn" : "It's NOT my turn");
 
 			// It's my turn
 			if (isMyTurn)
@@ -419,6 +422,7 @@ class MyUserInterface extends JFrame implements GameNet_UserInterface, Selectabl
 			this.setLayout(new BorderLayout());
 			this.add(playerListPanel, BorderLayout.CENTER);
 			this.add(btnStartGame, BorderLayout.SOUTH);
+			
 			// TODO If Time: Make disabled for everyone except host
 
 			btnStartGame.addActionListener(new ActionListener()
@@ -430,6 +434,18 @@ class MyUserInterface extends JFrame implements GameNet_UserInterface, Selectabl
 				}
 			});
 		}
+		
+		/**
+		 * Set if the player can use the start game button
+		 * @param value
+		 * Value to use.
+		 * true - player can start the game from the lobby
+		 * false - player cannot start the game from the lobby
+		 */
+		public void setStartEnabled(boolean value)
+		{
+			btnStartGame.setEnabled(value);
+		}
 	}
 
 	// used in lobby and in main game
@@ -440,25 +456,6 @@ class MyUserInterface extends JFrame implements GameNet_UserInterface, Selectabl
 		private DefaultListModel<Player> modelPlayers = new DefaultListModel<Player>();
 
 		private JList<Player> lstPlayers = new JList<Player>(modelPlayers);
-
-		//
-		//
-		//
-		//
-		//
-		//
-		//	Player list doesn't show players that had already joined for client players
-		//	Working on that
-		//
-		//
-		//
-		//
-		//
-		//
-		//
-		//
-		//
-		
 		
 		public PlayerListPanel()
 		{
@@ -517,7 +514,10 @@ class MyUserInterface extends JFrame implements GameNet_UserInterface, Selectabl
 				super.getListCellRendererComponent(list, playerObj, index, isSelected, cellHasFocus);
 
 				Player player = (Player)playerObj;
-				setText(player.getName() + " (" + player.getScore() + ")");
+				if (player.isSpectator())
+					setText(player.getName() + " (spectator)");
+				else
+					setText(player.getName() + " (" + player.getScore() + ")");
 
 				return this;
 			}
@@ -746,6 +746,11 @@ class MyUserInterface extends JFrame implements GameNet_UserInterface, Selectabl
 				diePanels.get(i).updateDie(localDiceSet.getDice().get(i));
 			}
 		}
+		
+		public void updateDie(int index, boolean value)
+		{
+			diePanels.get(index).setSelected(value);
+		}
 
 		public void resetDicePanels()
 		{
@@ -799,6 +804,7 @@ class MyUserInterface extends JFrame implements GameNet_UserInterface, Selectabl
 						diceObj.setSelected(chkHold.isSelected());
 						lblHeld.setVisible(chkHold.isSelected());
 						localDiceSet.setHeld(myIndex, chkHold.isSelected());
+						myGamePlayer.sendMessage(new MyGameInput(myIndex, chkHold.isSelected()));
 					}
 				}
 			});
@@ -889,7 +895,6 @@ class MyUserInterface extends JFrame implements GameNet_UserInterface, Selectabl
 
 		public void setSelected(boolean value)
 		{
-			System.out.println("Setting die background");
 			if (value)
 			{
 				this.setBackground(Color.RED);
@@ -961,8 +966,20 @@ class MyUserInterface extends JFrame implements GameNet_UserInterface, Selectabl
 
 		public void addServerOutputText(String text)
 		{
-			textArea.append(text + "\n");
-			scrollPane.getVerticalScrollBar().setValue(scrollPane.getVerticalScrollBar().getMaximum());
+			StringTokenizer tokenizer = new StringTokenizer(text, "\n");
+			while (tokenizer.hasMoreTokens())
+				textArea.append(tokenizer.nextToken() + "\n");
+			
+			Runnable runnable = new Runnable()
+			{
+				
+				@Override
+				public void run()
+				{
+					scrollPane.getVerticalScrollBar().setValue(scrollPane.getVerticalScrollBar().getMaximum());
+				}
+			};
+			SwingUtilities.invokeLater(runnable);
 		}
 	}
 
@@ -977,9 +994,6 @@ class MyUserInterface extends JFrame implements GameNet_UserInterface, Selectabl
 		SelectableTextField firstBonus = null,
 				secondBonus = null,
 				thirdBonus = null;
-
-		// Don't want to instantiate this constructor (debug code)
-		private JahtzeeBonusPanel() { throw new RuntimeException("MyUserInterface.JahtzeeBonusPanel: Don't instantiate via default constructor"); }
 
 		public JahtzeeBonusPanel(SelectableTextField first, SelectableTextField second, SelectableTextField third)
 		{

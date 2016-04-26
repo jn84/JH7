@@ -6,8 +6,8 @@ import javax.swing.JTextField;
 
 public class SelectableTextField extends JTextField
 {
-	private final Color COLOR_SELECTED = Color.BLUE,
-						COLOR_SELECTABLE = Color.GREEN,
+	private final Color COLOR_SELECTED = new Color(255, 153, 153),
+						COLOR_SELECTABLE = new Color(153, 255, 153),
 						COLOR_NOT_SELECTABLE = Color.LIGHT_GRAY;
 	
 	private SelectableTextFieldState state = new SelectableTextFieldState();

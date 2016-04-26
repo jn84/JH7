@@ -43,6 +43,9 @@ public class DiceObj implements Comparable<DiceObj>, Serializable
 	public void reset()
 	{
 		isHeld = false;
+		// This seems to make the dice rolling [seem] more random
+		for (int i = 0; i < 10; i++)
+			r.nextInt(6);
 		value = r.nextInt(6) +  1;
 	}
 	

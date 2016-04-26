@@ -22,8 +22,11 @@ public class MyGameOutput implements Serializable
 
 	private HashMap<String, Player> playerMap = new HashMap<String, Player>();
 	
-	private boolean canRoll = true;
+	private boolean canRoll = true,
+					isDiceObjHeld = false;
 	
+	private int diceHoldChangeIndex = -1;
+			
 	// Everyone can see the rolls, but only the player identified by currentPlayerID can interact
 	// Each player's user interface will determine if they are the active player 
 	private DiceSet diceSet = null;
@@ -110,6 +113,24 @@ public class MyGameOutput implements Serializable
 		this.outputType = MyGameOutputType.MESSAGE;
 	}
 	
+	public MyGameOutput(int index, boolean value)
+	{
+		diceHoldChangeIndex = index;
+		isDiceObjHeld = value;
+		this.outputType = MyGameOutputType.DICE_HOLD_CHANGED;
+	}
+	
+//	/**
+//	 * Get from server: update the Dice Set for each player (including which are held)
+//	 * @param diceSet
+//	 * The set of dice for players to update to
+//	 */
+//	public MyGameOutput(DiceSet diceSet)
+//	{
+//		this.diceSet = diceSet;
+//		this.outputType = MyGameOutputType.DICE_HOLD_CHANGED;
+//	}
+	
 	
 	
 	// added as an afterthought
@@ -152,6 +173,18 @@ public class MyGameOutput implements Serializable
 	{
 		return messageSendingPlayer;
 	}
+	
+	public int getDieHoldIndex()
+	{
+		return diceHoldChangeIndex;
+	}
+	
+	public boolean getIsDieHeld()
+	{
+		return isDiceObjHeld;
+	}
+	
+	
 	
 	// Turns out we do need this.
 	public HashMap<String, Player> getPlayersMap()

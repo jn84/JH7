@@ -21,6 +21,9 @@ public class Player implements Serializable, Comparable<Player>
 	
 	int playerScore = 0;
 	
+	boolean isSpectator = false,
+			isHostingPlayer = false;
+	
 	public Player(String name, String ID, int score)
 	{
 		playerName = name;
@@ -28,8 +31,6 @@ public class Player implements Serializable, Comparable<Player>
 		playerScore = score;
 		
 		scoreData = ScoreSheetBuilder.getNewPlayerScoreSheet();
-		// XXX Debug line: for some reason score data is being lost somewhere
-		System.out.println(scoreData.isEmpty() ? "scoreData is empty" : "scoreData is NOT empty");
 	}
 	
 	/**
@@ -49,6 +50,8 @@ public class Player implements Serializable, Comparable<Player>
 		playerID = p.playerID;
 		playerName = p.playerName;
 		playerScore = p.playerScore;
+		isSpectator = p.isSpectator;
+		isHostingPlayer = p.isHostingPlayer;
 	}
 	
 	public String getName()
@@ -76,6 +79,26 @@ public class Player implements Serializable, Comparable<Player>
 	public ArrayList<SelectableTextFieldState> getScoreData()
 	{
 		return scoreData;
+	}
+	
+	public void setSpectator(boolean value)
+	{
+		isSpectator = value;
+	}
+	
+	public boolean isSpectator()
+	{
+		return isSpectator;
+	}
+	
+	public void setIsHost(boolean value)
+	{
+		isHostingPlayer = value;
+	}
+	
+	public boolean getIsHost()
+	{
+		return isHostingPlayer;
 	}
 	
 
