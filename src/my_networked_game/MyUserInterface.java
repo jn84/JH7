@@ -256,6 +256,8 @@ class MyUserInterface extends JFrame implements GameNet_UserInterface, Selectabl
 	{
 		MyGameOutput myGameOutput = (MyGameOutput)ob;
 		
+		System.out.println("Server Output: " + myGameOutput.getOutputType().toString());
+		
 		Runnable doGameBegin = new Runnable()
 		{
 			
@@ -279,13 +281,9 @@ class MyUserInterface extends JFrame implements GameNet_UserInterface, Selectabl
 			playerListPanel.addPlayer(myGameOutput.getActivePlayer());
 			System.out.println("Reg Player Name:  " + myGameOutput.getActivePlayer().getName());
 			System.out.println("This Player Name: " + thisPlayer.getName());
-//			if (!thisPlayer.getName().equals(myGameOutput.getActivePlayer().getName()))
-//				lobbyPanel.btnStartGame.setEnabled(true);
-//			else
-//				lobbyPanel.btnStartGame.setEnabled(false);
-			lobbyPanel.btnStartGame.
-				setEnabled(
-						!thisPlayer.getName().equals(myGameOutput.getActivePlayer().getName()));
+			if (myGameOutput.getActivePlayer().getID().equals(thisPlayer.getID()))
+				thisPlayer = myGameOutput.getActivePlayer();
+			lobbyPanel.btnStartGame.setEnabled(thisPlayer.getIsHost());
 			
 
 			break;
@@ -347,7 +345,9 @@ class MyUserInterface extends JFrame implements GameNet_UserInterface, Selectabl
 			// It's my turn
 			if (isMyTurn)
 			{
+				System.out.println("ID Before setting: " + thisPlayer.getID());
 				thisPlayer = myGameOutputObj.getActivePlayer();
+				System.out.println("ID After  setting: " + thisPlayer.getID());
 				updateSelectableTextFields(thisPlayer.getScoreData());
 				dicePanel.updateDice(myGameOutputObj.getDice());
 				dicePanel.setEnabled(true);
@@ -365,7 +365,9 @@ class MyUserInterface extends JFrame implements GameNet_UserInterface, Selectabl
 			// It's not my turn
 			else
 			{
+				System.out.println("ID Before setting: " + thisPlayer.getID());
 				thisPlayer = myGameOutputObj.getMyPlayer(thisPlayer.getID());
+				System.out.println("ID After setting: " + thisPlayer.getID());
 				updateSelectableTextFields(thisPlayer.getScoreData());
 				dicePanel.updateDice(myGameOutputObj.getDice());
 
@@ -379,7 +381,9 @@ class MyUserInterface extends JFrame implements GameNet_UserInterface, Selectabl
 		// Game is over
 		else
 		{
+			System.out.println("ID Before setting: " + thisPlayer.getID());
 			thisPlayer = myGameOutputObj.getMyPlayer(thisPlayer.getID());
+			System.out.println("ID After  setting: " + thisPlayer.getID());
 			updateSelectableTextFields(thisPlayer.getScoreData());
 			dicePanel.setEnabled(false);
 			buttonPanel.setEnabled(false);
@@ -397,7 +401,7 @@ class MyUserInterface extends JFrame implements GameNet_UserInterface, Selectabl
 	private void myLayout()
 	{
 		this.setLayout(mainPanelLayout);
-		this.setSize(800, 600);
+		this.setSize(683, 500);
 		this.setVisible(true);
 	}
 

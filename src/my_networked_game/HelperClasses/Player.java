@@ -119,14 +119,8 @@ public class Player implements Serializable, Comparable<Player>
 	@Override
 	public boolean equals(Object obj)
 	{
-	       if (!(obj instanceof Player))
-	       {
-	    	   System.out.println("Checking instanceof: Passed object is not a Player object");
-	            return false;
-	       }
-
-	       System.out.println("Passed Player ID: " + ((Player)obj).playerID);
-	       System.out.println("  This Player ID: " + this.playerID);
-	        return (((Player)obj).playerID.equals(this.playerID));
+       if (!(obj instanceof Player))
+           return false;
+       return (((Player)obj).playerID.equals(this.playerID));
 	}
 }

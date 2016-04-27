@@ -9,5 +9,6 @@ public enum MyGameOutputType
 	GAME_OVER, // all players disabled.
 	MESSAGE,
 	UPDATE_PLAYERS,
-	DICE_HOLD_CHANGED
+	DICE_HOLD_CHANGED,
+	SET_HOST
 }
