@@ -96,17 +96,16 @@ public class MyGame extends GameNet_CoreGame implements Serializable
 			
 			// I do this because it seems to alleviate server NPE problems
 			new Timer().schedule(
-					new TimerTask()
+				new TimerTask()
+				{
+					@Override
+					public void run()
 					{
-						@Override
-						public void run()
-						{
-							gameControl.putMsgs(new MyGameOutput(playerList, MyGameOutputType.UPDATE_PLAYERS)); 
-						}
-
-					},
-					1000
-					);
+						gameControl.putMsgs(new MyGameOutput(playerList, MyGameOutputType.UPDATE_PLAYERS)); 
+					}
+				},
+				1000
+			);
 
 			if (!isGameInProgress)
 				myGameOutput.setMessage(player.getName() + " joined the game.");
@@ -133,17 +132,16 @@ public class MyGame extends GameNet_CoreGame implements Serializable
 				
 				// I do this because it seems to alleviate server NPE problems
 				new Timer().schedule(
-						new TimerTask()
+					new TimerTask()
+					{
+						@Override
+						public void run()
 						{
-							@Override
-							public void run()
-							{
-								gameControl.putMsgs(generateNewTurn(myGameInput)); 
-							}
-
-						},
-						1000
-						);
+							gameControl.putMsgs(generateNewTurn(myGameInput)); 
+						}
+					},
+					1000
+				);
 			}
 
 			System.out.println("Player [" + myGameInput.getUsername() + "] left the game");
