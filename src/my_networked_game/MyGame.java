@@ -61,7 +61,6 @@ public class MyGame extends GameNet_CoreGame implements Serializable
 
 		DiceSet diceSet = null;
 
-		System.out.println("Server Input: " + myGameInput.getInputType().toString());
 		switch (myGameInput.getInputType())
 		{
 		case REGISTER_PLAYER:

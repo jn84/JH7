@@ -39,8 +39,6 @@ public class DiceSetScoreProcessor
 
 		// If the field is already used, then we skip it
 
-		System.out.println(states.isEmpty() ? "states is empty" : "states is NOT empty");
-		
 		//ACES(0),
 		states.set(type.ordinal(), processSingleValue(type, player, isTurnSkip, diceValues));
 
